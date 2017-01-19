@@ -1,4 +1,4 @@
-#The Best DB Visualizer Tool Ever Made Ever. Period.
+# The Best DB Visualizer Tool Ever Made Ever. Period.
 
 This is a pretty cool db visualization tool. It lets you visualize a db. Yup.
 
