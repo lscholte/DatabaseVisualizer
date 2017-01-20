@@ -26,3 +26,7 @@ This is a pretty cool db visualization tool. It lets you visualize a db. Yup.
 4.  Verify data integrity
 `time mysql -p -uroot -t < test_employees_sha.sql;`
 `time mysql -p -uroot -t < test_employees_md5.sql;`
+
+The `employees` database has the following schema:
+
+![](employees-schema.png)
