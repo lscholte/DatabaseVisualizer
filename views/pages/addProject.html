@@ -1,25 +1,25 @@
-<div data-ng-init="loadProject()">
+<div class="modal-content" data-ng-init="loadProject()">
     <form ng-submit="saveProject(); closeProjectDetails()">
         <div class="modal-header">
             <button type="button" class="close" ng-click="closeProjectDetails()" aria-hidden="true">&times;</button> 
             <h4 class="modal-title">Configure Project</h4>
         </div>
-        
-        <p>Enter the database connection details below and click submit to view the ER diagram</p><br>
-        
-        Project Name<br>
-        <input type="text" name="project" ng-model="project.name" required><br><br>
+        <div class="modal-body">
 
-        Database Host IP<br>
-        <input type="text" name="host" ng-model="project.databaseConnection.host" required><br>
-        Port<br>
-        <input type="number" name="port" ng-model="project.databaseConnection.port"><br>
-        Username<br>
-        <input type="text" name="username" ng-model="project.databaseConnection.username" required><br>
-        Password<br>
-        <input type="password" name="password" ng-model="project.databaseConnection.password" required><br>
-        <br>
-        
+            Project Name<br>
+            <input type="text" name="project" ng-model="project.name" required><br><br>
+
+            Database Host IP<br>
+            <input type="text" name="host" ng-model="project.databaseConnection.host" required><br><br>
+            Port<br>
+            <input type="number" name="port" ng-model="project.databaseConnection.port"><br><br>
+            Username<br>
+            <input type="text" name="username" ng-model="project.databaseConnection.username" required><br><br>
+            Password<br>
+            <input type="password" name="password" ng-model="project.databaseConnection.password" required><br><br>
+            <br>
+            
+        </div>
         <div class="modal-footer">
             <input type="submit" class="btn btn-primary" value="Save Project">
             <input type="button" class="btn btn-default" value="Cancel" ng-click="closeProjectDetails()">
