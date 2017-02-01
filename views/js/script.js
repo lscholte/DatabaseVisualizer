@@ -34,7 +34,6 @@ angular.module("test", ["ngCookies", "ngRoute", "ui.bootstrap"])
     $scope.projects = projectService.getAllProjects();
     
     $scope.$on("projectsUpdated", function() {
-        console.log("CALLED");
         $scope.projects = projectService.getAllProjects();
     });
     
