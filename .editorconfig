@@ -1,0 +1,16 @@
+# See the EditorConfig website for how to config: http://EditorConfig.org
+
+# top-most EditorConfig file
+root = true
+
+# Rules applied to all files
+[*]
+end_of_line = lf
+insert_final_newline = true
+# Personally, I'm more of a tab guy, but looks like this is what we are doing :/
+indent_style = space
+indent_size = 4
+trim_trailing_whitespace = true
+
+[*.md]
+trim_trailing_whitespace = false
