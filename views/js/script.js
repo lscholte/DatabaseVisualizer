@@ -49,6 +49,14 @@ angular.module("test", ["ngCookies", "ngRoute", "ui.bootstrap"])
             controller: "addProjectController"
         });
     };
+    
+    $scope.openDeleteProjectModal = function(projectName) {
+        projectService.selectProject(projectName);
+        var modalInstance = $uibModal.open({
+            templateUrl: "views/pages/deleteProject.html",
+            controller: "deleteProjectController"
+        });
+    };
 
 
 }).controller("addProjectController", function($scope, $rootScope, $cookies, $location, $uibModalInstance, projectService) {
@@ -103,7 +111,7 @@ angular.module("test", ["ngCookies", "ngRoute", "ui.bootstrap"])
     $scope.loadProject = function() {
         var project = projectService.getSelectedProject();
         if(project) {
-                    $scope.originalProjectName = project.name;
+            $scope.originalProjectName = project.name;
             $scope.project = project;
         }
     }
@@ -113,6 +121,26 @@ angular.module("test", ["ngCookies", "ngRoute", "ui.bootstrap"])
     };
     
     $scope.closeProjectDetails = function() {
+        $uibModalInstance.close("cancel");   
+    };
+    
+}).controller("deleteProjectController", function($scope, $rootScope, $uibModalInstance, projectService) {
+    
+    $scope.projectName = null;
+    
+    $scope.getProjectName = function() {
+        var project = projectService.getSelectedProject();
+        if(project) {
+            $scope.projectName = project.name;
+        }
+    };
+    
+    $scope.deleteProject = function() {
+        projectService.removeProject($scope.projectName);
+        $rootScope.$broadcast("projectsUpdated");
+    }
+    
+    $scope.closeDeleteProjectModal = function() {
         $uibModalInstance.close("cancel");   
     };
     

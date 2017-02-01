@@ -13,7 +13,7 @@
                     <td>{{project.name}}</td>
                     <td>
                         <button type="button" class="btn btn-default" ng-click="openProjectDetails(project.name)">Edit</button>
-                        <button type="button" class="btn btn-default" onclick="alert('Not yet Functional')">Delete</button>
+                        <button type="button" class="btn btn-default" ng-click="openDeleteProjectModal(project.name)">Delete</button>
                         <button type="button" class="btn btn-default" onclick="alert('Not yet Functional')">View</button>
                     </td>     
                 </tr>
@@ -24,9 +24,6 @@
                 </tr>
                 
             </tbody>
-        </table>
-        
-        Clear Projects button is just for debugging purposes. Will probably remove eventually<br>
-        <button type="button" ng-click="clearCookies()">Clear Projects</button>        
+        </table>        
     </div>
 </div>
