@@ -9,7 +9,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr ng-repeat="project in projects">
+                <tr ng-repeat="project in projects | orderObjectsBy:'name'">
                     <td>{{project.name}}</td>
                     <td>
                         <button type="button" class="btn btn-default" ng-click="openProjectDetails(project.name)">Edit</button>

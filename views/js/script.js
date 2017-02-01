@@ -34,6 +34,7 @@ angular.module("test", ["ngCookies", "ngRoute", "ui.bootstrap"])
     $scope.projects = projectService.getAllProjects();
     
     $scope.$on("projectsUpdated", function() {
+        console.log("CALLED");
         $scope.projects = projectService.getAllProjects();
     });
     
@@ -169,4 +170,18 @@ angular.module("test", ["ngCookies", "ngRoute", "ui.bootstrap"])
     };
     
     return service;
+}).filter('orderObjectsBy', function() {
+    return function(items, property, reverse) {
+        var filtered = [];
+        for(item in items) {
+            filtered.push(items[item]);
+        }
+        filtered.sort(function(a, b) {
+            if(reverse) {
+                return a[property] > b[property] ? -1 : 1;
+            }
+            return a[property] > b[property] ? 1 : -1;
+        });
+        return filtered;
+    };
 });
