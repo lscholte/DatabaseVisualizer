@@ -27,20 +27,15 @@ angular.module("test", ["ngCookies", "ngRoute", "ui.bootstrap"])
     
     $scope.clearCookies = function() {
         $cookies.putObject("projects", {});
-    }
+    };
     
-}).controller("homeController", function($scope, $cookies, $location, $uibModal, projectService) {
+}).controller("homeController", function($scope, $cookies, $uibModal, projectService) {
                     
     $scope.projects = projectService.getAllProjects();
     
     $scope.$on("projectsUpdated", function() {
         $scope.projects = projectService.getAllProjects();
-    })
-    
-    $scope.gotoAddProjectPage = function(project) {
-        projectService.selectProject(project);
-        $location.path("/addProject");
-    };
+    });
     
     $scope.openProjectDetails = function(projectName) {
         projectService.selectProject(projectName);
@@ -59,7 +54,7 @@ angular.module("test", ["ngCookies", "ngRoute", "ui.bootstrap"])
     };
 
 
-}).controller("addProjectController", function($scope, $rootScope, $cookies, $location, $uibModalInstance, projectService) {
+}).controller("addProjectController", function($scope, $rootScope, $cookies, $uibModalInstance, projectService) {
     
     $scope.project = {
         name: null,
@@ -75,7 +70,7 @@ angular.module("test", ["ngCookies", "ngRoute", "ui.bootstrap"])
     
     $scope.projectNameExists = function() {
         return $scope.project.name in projectService.getAllProjects();
-    }
+    };
     
     $scope.saveProject = function() {
 
@@ -114,10 +109,6 @@ angular.module("test", ["ngCookies", "ngRoute", "ui.bootstrap"])
             $scope.originalProjectName = project.name;
             $scope.project = project;
         }
-    }
-    
-    $scope.gotoHomePage = function() {
-        $location.path("/home");
     };
     
     $scope.closeProjectDetails = function() {
@@ -138,7 +129,7 @@ angular.module("test", ["ngCookies", "ngRoute", "ui.bootstrap"])
     $scope.deleteProject = function() {
         projectService.removeProject($scope.projectName);
         $rootScope.$broadcast("projectsUpdated");
-    }
+    };
     
     $scope.closeDeleteProjectModal = function() {
         $uibModalInstance.close("cancel");   
