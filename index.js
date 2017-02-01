@@ -2,21 +2,12 @@
 
 var express = require('express');
 var app = express();
+var path = require('path');
 
-var nunjucks = require('nunjucks');
-nunjucks.configure('views', {
-	autoescape: true,
-	express: app
-});
+app.use(express.static(__dirname));
 
-var phrases = ['Hello World.', 'Today is a good day.', 'Everything is fine.', 'I like pie.'];
-
-app.get('/', function(req, res) {
-	var randomPhrase = phrases[Math.floor(Math.random() * 4)];
-
-	res.render('index.html.njk', {
-		testText: randomPhrase
-	});
+app.get('*', function(req, res) {
+    res.sendFile(path.join(__dirname + '/views/index.html'));
 });
 
 app.listen(3000);

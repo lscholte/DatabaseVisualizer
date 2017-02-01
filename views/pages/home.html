@@ -1,0 +1,32 @@
+<div>
+    <div class="container">
+        <h2>Current Projects</h2>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Project Name</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="project in projects">
+                    <td>{{project.name}}</td>
+                    <td>
+                        <button type="button" class="btn btn-default" ng-click="openProjectDetails(project.name)">Edit</button>
+                        <button type="button" class="btn btn-default" onclick="alert('Not yet Functional')">Delete</button>
+                        <button type="button" class="btn btn-default" onclick="alert('Not yet Functional')">View</button>
+                    </td>     
+                </tr>
+                <tr>
+                    <td colspan=2>
+                        <button type="button" class="btn btn-default" ng-click="openProjectDetails()">Add Project</button>
+                    </td>
+                </tr>
+                
+            </tbody>
+        </table>
+        
+        Clear Projects button is just for debugging purposes. Will probably remove eventually<br>
+        <button type="button" ng-click="clearCookies()">Clear Projects</button>        
+    </div>
+</div>
