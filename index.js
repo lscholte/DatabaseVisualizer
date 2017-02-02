@@ -2,13 +2,14 @@
 
 var express = require('express');
 var app = express();
-var path = require('path');
 
-app.use(express.static(__dirname));
+var mysqlQueries = require('./mysql-queries.js');
 
-app.get('*', function(req, res) {
-    res.sendFile(path.join(__dirname + '/views/index.html'));
-});
+app.use(express.static('static'));
+app.use('/home', express.static('static'));
+
+app.get('/sql/get', mysqlQueries.getDataAction);
+app.get('/sql/relations', mysqlQueries.getRelationsAction);
 
 app.listen(3000);
 console.log('Listening on port 3000...');
