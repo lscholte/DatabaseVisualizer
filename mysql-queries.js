@@ -1,6 +1,4 @@
-var express = require("express");
 var mysql = require('mysql');
-var app = express();
 
 var pool = mysql.createPool({
     connectionLimit: 100, //important
@@ -11,9 +9,9 @@ var pool = mysql.createPool({
     debug: true
 });
 
-function handle_database(req, res) {
+module.exports.getDataAction = function(req, res) {
 
-    pool.getConnection(function(err, connection) {
+    pool.getConnection(function (err, connection) {
         if (err) {
             connection.release();
             res.json({
@@ -25,27 +23,64 @@ function handle_database(req, res) {
 
         console.log('connected as id ' + connection.threadId);
 
-        connection.query("select * from dept_manager", function(err, rows) {
+        connection.query('select * from ' + req.query.table, function (err, rows) {
             connection.release();
             if (!err) {
                 res.json(rows);
+            } else {
+                res.json({
+                    "code": 101,
+                    "status": err
+                });
             }
         });
 
-        connection.on('error', function(err) {
+        connection.on('error', function (err) {
+            res.json({
+                "code": 100,
+                "status": "Error in connecting database"
+            });
+        });
+    });
+};
+
+module.exports.getRelationsAction = function(req, res) {
+
+    pool.getConnection(function (err, connection) {
+        if (err) {
+            connection.release();
             res.json({
                 "code": 100,
                 "status": "Error in connection database"
             });
             return;
+        }
+
+        console.log('connected as id ' + connection.threadId);
+
+        var sqlquery = 'SELECT kcu.TABLE_NAME as manyTable, kcu.COLUMN_NAME as manyColumn, kcu.REFERENCED_TABLE_NAME as oneTable, kcu.REFERENCED_COLUMN_NAME as oneColumn ' +
+                       'FROM information_schema.TABLE_CONSTRAINTS AS tc ' +
+                       'JOIN information_schema.KEY_COLUMN_USAGE AS kcu ON tc.CONSTRAINT_NAME = kcu.CONSTRAINT_NAME ' +
+                       'WHERE tc.TABLE_SCHEMA = "' + pool.config.connectionConfig.database + '" AND tc.CONSTRAINT_TYPE = "FOREIGN KEY"';
+
+        connection.query(sqlquery, function (err, rows) {
+            connection.release();
+            if (!err) {
+                res.json(rows);
+            } else {
+                res.json({
+                    "code": 101,
+                    "status": "Query returned an error: " + err
+                });
+            }
+        });
+
+        connection.on('error', function (err) {
+            res.json({
+                "code": 100,
+                "status": "Error in connecting database"
+            });
         });
     });
-}
 
-app.get("/", function(req, res) {
-    -
-    handle_database(req, res);
-});
-
-app.listen(3030);
-console.log("Listening on http://localhost:3030")
+};
