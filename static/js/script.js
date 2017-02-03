@@ -56,7 +56,7 @@ angular.module("test", ["ngCookies", "ngRoute", "ui.bootstrap"])
 
 
 }).controller("addProjectController", function($scope, $rootScope, $cookies, $uibModalInstance, projectService) {
-
+    
     $scope.project = {
         name: null,
         databaseConnection: {
@@ -68,36 +68,15 @@ angular.module("test", ["ngCookies", "ngRoute", "ui.bootstrap"])
     };
 
     $scope.originalProjectName = $scope.project.name;
-
-    $scope.projectNameExists = function() {
-        return $scope.project.name in projectService.getAllProjects();
-    };
-
+    
     $scope.saveProject = function() {
 
-        //TODO: I think the logic here is probably more complicated than it needs
-        //to be, so see if there is a way to simplify it a bit
-
-        //If a project with the chosen name already exists
-        if($scope.projectNameExists()) {
-            //If this is a new project or the name of an existing project is being changed
-            if($scope.originalProjectName == null ||
-               $scope.project.name !== $scope.originalProjectName) {
-                alert("Project " + $scope.project.name + " already exists");
-                return;
-            }
-            //otherwise we are editing the existing project but not changing name
-            projectService.addProject($scope.project);
+        //If this is not a new project
+        if($scope.originalProjectName != null) {
+            projectService.removeProject($scope.originalProjectName);
         }
-        //Otherwise no existing project has the chosen name
-        else {
-            //If this is not a new project
-            if($scope.originalProjectName != null) {
-                projectService.removeProject($scope.originalProjectName);
-            }
-            //Otherwise we are editing an existing project and changing the name
-            projectService.addProject($scope.project);
-        }
+        //Otherwise we are editing an existing project and changing the name
+        projectService.addProject($scope.project);
 
         //Notify observers that the projects have updated
         $rootScope.$broadcast("projectsUpdated");
@@ -145,6 +124,14 @@ angular.module("test", ["ngCookies", "ngRoute", "ui.bootstrap"])
     service.getAllProjects = function() {
         return $cookies.getObject("projects");
     };
+    
+    service.doesProjectExist = function(projectName) {
+        var allProjects = service.getAllProjects();
+        if(allProjects[projectName]) {
+            return true;
+        }
+        return false;
+    }
 
     service.addProject = function(project) {
         var allProjects = service.getAllProjects();
@@ -183,5 +170,20 @@ angular.module("test", ["ngCookies", "ngRoute", "ui.bootstrap"])
             return a[property] > b[property] ? 1 : -1;
         });
         return filtered;
+    };
+}).directive('uniqueProject', function(projectService) {
+    return {
+        restrict: "A",
+        require: 'ngModel',
+        link: function (scope, element, attrs, controller) {
+            element.bind('change', function(e) {
+                var projectName = controller.$modelValue;
+                if(projectService.doesProjectExist(projectName)) {
+                    e.target.setCustomValidity("A project with name '" + projectName + "' already exists");
+                    return;
+                }
+                e.target.setCustomValidity("");
+            });
+        }
     };
 });

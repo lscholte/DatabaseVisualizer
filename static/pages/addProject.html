@@ -1,4 +1,4 @@
-<div class="modal-content" data-ng-init="loadProject()">
+<div class="modal-content" ng-init="loadProject()">
     <form ng-submit="saveProject(); closeProjectDetails()">
         <div class="modal-header">
             <button type="button" class="close" ng-click="closeProjectDetails()" aria-hidden="true">&times;</button> 
@@ -7,7 +7,7 @@
         <div class="modal-body">
 
             Project Name<br>
-            <input type="text" name="project" ng-model="project.name" required><br><br>
+            <input type="text" id="project" name="project" ng-model="project.name" required unique-project><br><br>
 
             Database Host IP<br>
             <input type="text" name="host" ng-model="project.databaseConnection.host" required><br><br>
