@@ -157,7 +157,7 @@ angular.module("test", ["ngCookies", "ngRoute", "ui.bootstrap"])
     };
 
     return service;
-}).filter('orderObjectsBy', function() {
+}).filter("orderObjectsBy", function() {
     return function(items, property, reverse) {
         var filtered = [];
         for(item in items) {
@@ -171,12 +171,12 @@ angular.module("test", ["ngCookies", "ngRoute", "ui.bootstrap"])
         });
         return filtered;
     };
-}).directive('uniqueProject', function(projectService) {
+}).directive("uniqueProject", function(projectService) {
     return {
         restrict: "A",
-        require: 'ngModel',
+        require: "ngModel",
         link: function (scope, element, attrs, controller) {
-            element.bind('change', function(e) {
+            element.bind("change", function(e) {
                 var projectName = controller.$modelValue;
                 if(projectService.doesProjectExist(projectName)) {
                     e.target.setCustomValidity("A project with name '" + projectName + "' already exists");
