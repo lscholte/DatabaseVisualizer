@@ -10,6 +10,9 @@ angular.module("test", ["ngCookies", "ngRoute", "ui.bootstrap"])
         $routeProvider.when("/home", {
             templateUrl: "pages/home.html",
             controller: "homeController"
+        }).when("/view", {
+            templateUrl: "pages/viewProject.html",
+            controller: "viewProjectController"
         }).otherwise({
             redirectTo: "/home"
         });
@@ -29,7 +32,7 @@ angular.module("test", ["ngCookies", "ngRoute", "ui.bootstrap"])
         $cookies.putObject("projects", {});
     };
 
-}).controller("homeController", function($scope, $cookies, $uibModal, projectService) {
+}).controller("homeController", function($scope, $cookies, $uibModal, $location, projectService) {
 
     $scope.projects = projectService.getAllProjects();
 
@@ -54,9 +57,13 @@ angular.module("test", ["ngCookies", "ngRoute", "ui.bootstrap"])
         });
     };
 
+    $scope.openProjectView = function(projectName) {
+        projectService.selectProject(projectName);
+        $location.path("/view");
+    };
 
 }).controller("addProjectController", function($scope, $rootScope, $cookies, $uibModalInstance, projectService) {
-    
+
     $scope.project = {
         name: null,
         databaseConnection: {
@@ -68,7 +75,7 @@ angular.module("test", ["ngCookies", "ngRoute", "ui.bootstrap"])
     };
 
     $scope.originalProjectName = $scope.project.name;
-    
+
     $scope.saveProject = function() {
 
         //If this is not a new project
@@ -115,6 +122,15 @@ angular.module("test", ["ngCookies", "ngRoute", "ui.bootstrap"])
         $uibModalInstance.close("cancel");
     };
 
+}).controller("viewProjectController", function($scope, $rootScope, projectService) {
+
+    $scope.getProjectInfo = function() {
+        var project = projectService.getSelectedProject();
+        if(project) {
+            $scope.project = project;
+        }
+    };
+
 }).service("projectService", function($cookies) {
 
     var selectedProject = null;
@@ -124,7 +140,7 @@ angular.module("test", ["ngCookies", "ngRoute", "ui.bootstrap"])
     service.getAllProjects = function() {
         return $cookies.getObject("projects");
     };
-    
+
     service.doesProjectExist = function(projectName) {
         var allProjects = service.getAllProjects();
         if(allProjects[projectName]) {
