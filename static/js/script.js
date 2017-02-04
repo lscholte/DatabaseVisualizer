@@ -176,9 +176,10 @@ angular.module("test", ["ngCookies", "ngRoute", "ui.bootstrap"])
         restrict: "A",
         require: "ngModel",
         link: function (scope, element, attrs, controller) {
+            var originalProjectName = projectService.getSelectedProject().name;
             element.bind("change", function(e) {
                 var projectName = controller.$modelValue;
-                if(projectService.doesProjectExist(projectName)) {
+                if(projectService.doesProjectExist(projectName) && originalProjectName !== projectName) {
                     e.target.setCustomValidity("A project with name '" + projectName + "' already exists");
                     return;
                 }
