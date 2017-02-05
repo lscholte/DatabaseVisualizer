@@ -126,6 +126,8 @@ angular.module("test", ["ngCookies", "ngRoute", "ui.bootstrap"])
 
     var project = projectService.getSelectedProject();
 
+    $scope.status = $sce.trustAsHtml("<h1>(Loading data, please wait...)</h1>");
+
     $scope.queries = {
         finished: false,
         schema: null,
@@ -136,8 +138,8 @@ angular.module("test", ["ngCookies", "ngRoute", "ui.bootstrap"])
         if ($scope.queries.finished)
         {
             console.log($scope.queries);
-
             gojs_init($scope.queries.schema, $scope.queries.relations);
+            $scope.status = "";
         }
     });
 

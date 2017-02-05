@@ -1,22 +1,20 @@
-<div data-ng-init="getProjectInfo()">
+<div class="view-proj">
+    <div data-ng-init="getProjectInfo()">
 
+        <h4>Different Layouts</h4>
 
-    <h4>Different Layouts</h4>
+        <button onclick="FDLayout()">Force Directed Layout</button>
+        <button onclick="GLayout()">Grid Layout</button>
+        <button onclick="CLayout()">Circular Layout</button>
+        <button onclick="LDLayout()">Layered Digraph Layout</button>
+        <button onclick="TLayout()">Tree Layout</button>
 
-    <button onclick="FDLayout()" >Force Directed Layout</button>
-    <button onclick="GLayout()" >Grid Layout</button>
-    <button onclick="CLayout()" >Circular Layout</button>
-    <button onclick="LDLayout()" >Layered Digraph Layout</button>
-    <button onclick="TLayout()" >Tree Layout</button>
+        <h4>Export</h4>
 
-    <h4>Export</h4>
+        <button onclick="PrintImage()">Export Image</button>
 
-    <button onclick="PrintImage()" >Export Image</button>
-
-<div>
-  <h3>Entity Relationship Diagram</h3>
-  <div id="myDiagramDiv" style="background-color: white; border: solid 1px black; width: 100%; height: 700px"></div>
-</div>
-
-
+        <h3>Entity Relationship Diagram</h3>
+        <span data-ng-bind-html="status"></span>
+        <div id="myDiagramDiv" style="background-color: white; border: solid 1px black; width: 100%; height: 700px"></div>
+    </div>
 </div>
