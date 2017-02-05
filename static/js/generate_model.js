@@ -1,4 +1,7 @@
- function init() {
+ 
+
+
+ function init(relations) {
     var $ = go.GraphObject.make;  // for conciseness in defining templates
 
     myDiagram =
@@ -134,9 +137,36 @@
                  { name: "Discount", iskey: false, figure: "MagneticData", color: greengrad } ] },
     ];
     var linkDataArray = [
+
+
+
+
+
       { from: "Products", to: "Suppliers", text: "0..N", toText: "1" },
       { from: "Products", to: "Categories", text: "0..N", toText: "1" },
       { from: "Order Details", to: "Products", text: "0..N", toText: "1" }
     ];
     myDiagram.model = new go.GraphLinksModel(nodeDataArray, linkDataArray);
   }
+
+  	function FDLayout(){
+      	myDiagram.layout = new go.ForceDirectedLayout;
+      }
+
+      function GLayout(){
+      	myDiagram.layout = new go.GridLayout;
+      }
+
+      function CLayout(){
+      	myDiagram.layout = new go.CircularLayout;
+      }
+
+      function LDLayout(){
+      	myDiagram.layout = new go.LayeredDigraphLayout;
+      }
+
+      function TLayout(){
+      	myDiagram.layout = new go.TreeLayout;
+      }
+
+
