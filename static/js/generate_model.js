@@ -1,7 +1,7 @@
- 
 
 
- function init(relations) {
+
+ function init(schema, relations) {
     var $ = go.GraphObject.make;  // for conciseness in defining templates
 
     myDiagram =
@@ -15,11 +15,12 @@
         });
 
     // define several shared Brushes
-    var bluegrad = $(go.Brush, "Linear", { 0: "rgb(150, 150, 250)", 0.5: "rgb(86, 86, 186)", 1: "rgb(86, 86, 186)" });
-    var greengrad = $(go.Brush, "Linear", { 0: "rgb(158, 209, 159)", 1: "rgb(67, 101, 56)" });
-    var redgrad = $(go.Brush, "Linear", { 0: "rgb(206, 106, 100)", 1: "rgb(180, 56, 50)" });
-    var yellowgrad = $(go.Brush, "Linear", { 0: "rgb(254, 221, 50)", 1: "rgb(254, 182, 50)" });
-    var lightgrad = $(go.Brush, "Linear", { 1: "#E6E6FA", 0: "#FFFAF0" });
+    var brushes = {
+      PrimaryForeign: $(go.Brush, "Linear", { 0: "rgb(254, 221, 50)", 1: "rgb(67, 101, 56)" }),
+      Primary: $(go.Brush, "Linear", { 0: "rgb(254, 221, 50)", 1: "rgb(254, 182, 50)" }),
+      Foreign: $(go.Brush, "Linear", { 0: "rgb(158, 209, 159)", 1: "rgb(67, 101, 56)" }),
+      None: $(go.Brush, "Linear", { 0: "rgb(150, 150, 250)", 0.5: "rgb(86, 86, 186)", 1: "rgb(86, 86, 186)" })
+    }
 
     // the template for each attribute in a node's array of item data
     var itemTempl =
@@ -119,6 +120,9 @@
       );
 
     // create the model for the E-R diagram
+	
+
+
     var nodeDataArray = [
       { key: "Products",
         items: [ { name: "ProductID", iskey: true, figure: "Decision", color: yellowgrad },
@@ -142,13 +146,18 @@
                  { name: "Quantity", iskey: false, figure: "MagneticData", color: greengrad },
                  { name: "Discount", iskey: false, figure: "MagneticData", color: greengrad } ] },
     ];
+
+    
+    /*
     var linkDataArray = [
 
       { from: "Products", to: "Suppliers", text: "0..N", toText: "1" },
       { from: "Products", to: "Categories", text: "0..N", toText: "1" },
       { from: "Order Details", to: "Products", text: "0..N", toText: "1" }
     ];
-    myDiagram.model = new go.GraphLinksModel(nodeDataArray, linkDataArray);
+    *///exmaple relationships
+
+    myDiagram.model = new go.GraphLinksModel(nodeDataArray, relations);
 
   }
 
