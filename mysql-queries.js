@@ -1,14 +1,5 @@
 var mysql = require('mysql');
 
-var pool = mysql.createPool({
-    connectionLimit: 100, //important
-    host: 'localhost',
-    user: 'seng371',
-    password: 'seng_pass',
-    database: 'employees',
-    debug: true
-});
-
 function sendError(message, errObject, res)
 {
     console.log("SQL Error: " + message);
@@ -118,6 +109,12 @@ module.exports.getRelationsAction = function(req, res) {
         'JOIN information_schema.KEY_COLUMN_USAGE AS kcu ON tc.CONSTRAINT_NAME = kcu.CONSTRAINT_NAME ' +
         'WHERE tc.TABLE_SCHEMA = "' + pool.config.connectionConfig.database + '" AND tc.CONSTRAINT_TYPE = "FOREIGN KEY"';
 
-    performQuery(req.body, sqlQuery, function(m, e) { sendError(m, e, res); }, res.json);
-    
+    performQuery(req.body, sqlQuery,
+        function(m, e) {
+            sendError(m, e, res);
+        },
+        function (rows) {
+        res.json(rows);
+        }
+    );
 };
