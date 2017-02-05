@@ -124,6 +124,8 @@ angular.module("test", ["ngCookies", "ngRoute", "ui.bootstrap"])
 
 }).controller("viewProjectController", function($scope, $rootScope, projectService) {
 
+    init();
+
     $scope.getProjectInfo = function() {
         var project = projectService.getSelectedProject();
         if(project) {
