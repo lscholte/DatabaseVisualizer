@@ -55,7 +55,7 @@
           $(go.TextBlock,
             {
               row: 0, alignment: go.Spot.Center,
-              margin: new go.Margin(0, 14, 0, 2),  // leave room for Button
+              margin: new go.Margin(17, 14, 0, 2),  // leave room for Button
               font: "bold 16px sans-serif"
             },
             new go.Binding("text", "key")),
