@@ -172,4 +172,12 @@
       	myDiagram.layout = new go.TreeLayout;
       }
 
+      function PrintImage(){
+      	// img = new Image();
+      	img = myDiagram.makeImage({
+  			scale: 1
+		});
+		uriContent = img.getAttribute("src");
+		newWindow = window.open(uriContent, 'Entity relationship diagram');
+      }
 
