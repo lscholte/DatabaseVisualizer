@@ -68,8 +68,9 @@ angular.module("test", ["ngCookies", "ngRoute", "ui.bootstrap"])
         databaseConnection: {
             host: null,
             port: null,
-            username: null,
-            password: null
+            user: null,
+            password: null,
+            database: null
         }
     };
 
@@ -121,16 +122,50 @@ angular.module("test", ["ngCookies", "ngRoute", "ui.bootstrap"])
         $uibModalInstance.close("cancel");
     };
 
-}).controller("viewProjectController", function($scope, $rootScope, projectService) {
+}).controller("viewProjectController", function($scope, $rootScope, $http, $sce, projectService) {
 
-    init();
+    var project = projectService.getSelectedProject();
 
-    $scope.getProjectInfo = function() {
-        var project = projectService.getSelectedProject();
-        if(project) {
-            $scope.project = project;
-        }
+    $scope.queries = {
+        finished: false,
+        schema: null,
+        relations: null
     };
+
+    $scope.$watch('queries.finished', function() {
+        if ($scope.queries.finished)
+        {
+            console.log($scope.queries);
+
+            gojs_init($scope.queries.schema, $scope.queries.relations);
+        }
+    });
+
+    $http({
+        method: 'POST',
+        url: '/sql/schema',
+        data: project.databaseConnection
+    }).then(function successCallback(response) {
+        $scope.queries.schema = response.data;
+        if ($scope.queries.relations !== null) {
+            $scope.queries.finished = true;
+        }
+    }, function errorCallback(response) {
+        // handle error
+    });
+
+    $http({
+        method: 'POST',
+        url: '/sql/relations',
+        data: project.databaseConnection
+    }).then(function successCallback(response) {
+        $scope.queries.relations = response.data;
+        if ($scope.queries.schema !== null) {
+            $scope.queries.finished = true;
+        }
+    }, function errorCallback(response) {
+        // handle error
+    });
 
 }).service("projectService", function($cookies) {
 

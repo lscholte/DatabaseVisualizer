@@ -60,7 +60,7 @@ module.exports.getSchemaAction = function(req, res) {
         'AND kcu.TABLE_NAME = c.TABLE_NAME AND kcu.COLUMN_NAME = c.COLUMN_NAME ' +
         'LEFT JOIN information_schema.TABLE_CONSTRAINTS AS tc ON tc.TABLE_SCHEMA = c.TABLE_SCHEMA ' +
         'AND tc.TABLE_NAME = c.TABLE_NAME AND tc.CONSTRAINT_NAME = kcu.CONSTRAINT_NAME ' +
-        'WHERE c.TABLE_SCHEMA = "' + pool.config.connectionConfig.database + '" ' +
+        'WHERE c.TABLE_SCHEMA = "' + req.body.database + '" ' +
         'GROUP BY c.TABLE_NAME, c.COLUMN_NAME ORDER BY c.TABLE_NAME, c.COLUMN_NAME';
 
     performQuery(req.body, sqlQuery,
@@ -107,14 +107,14 @@ module.exports.getRelationsAction = function(req, res) {
     var sqlQuery = 'SELECT kcu.TABLE_NAME as "from", kcu.REFERENCED_TABLE_NAME as "to", "0..N" as "text", "1" as "toText" ' +
         'FROM information_schema.TABLE_CONSTRAINTS AS tc ' +
         'JOIN information_schema.KEY_COLUMN_USAGE AS kcu ON tc.CONSTRAINT_NAME = kcu.CONSTRAINT_NAME ' +
-        'WHERE tc.TABLE_SCHEMA = "' + pool.config.connectionConfig.database + '" AND tc.CONSTRAINT_TYPE = "FOREIGN KEY"';
+        'WHERE tc.TABLE_SCHEMA = "' + req.body.database + '" AND tc.CONSTRAINT_TYPE = "FOREIGN KEY"';
 
     performQuery(req.body, sqlQuery,
         function(m, e) {
             sendError(m, e, res);
         },
         function (rows) {
-        res.json(rows);
+            res.json(rows);
         }
     );
 };
