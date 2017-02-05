@@ -41,8 +41,7 @@ angular.module("test", ["ngCookies", "ngRoute", "ui.bootstrap"])
         projectService.selectProject(projectName);
         var modalInstance = $uibModal.open({
             templateUrl: "pages/addProject.html",
-            controller: "addProjectController",
-            size: "sm"
+            controller: "addProjectController"
         });
     };
 

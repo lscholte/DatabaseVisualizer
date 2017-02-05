@@ -1,23 +1,49 @@
 <div class="modal-content" ng-init="loadProject()">
-    <form ng-submit="saveProject(); closeProjectDetails()">
+    <form class="form-horizontal" ng-submit="saveProject(); closeProjectDetails()">
         <div class="modal-header">
             <button type="button" class="close" ng-click="closeProjectDetails()" aria-hidden="true">&times;</button> 
             <h4 class="modal-title">Configure Project</h4>
         </div>
         <div class="modal-body">
 
-            Project Name<br>
-            <input type="text" id="project" name="project" ng-model="project.name" required unique-project><br><br>
-
-            Database Host IP<br>
-            <input type="text" name="host" ng-model="project.databaseConnection.host" required><br><br>
-            Port<br>
-            <input type="number" name="port" ng-model="project.databaseConnection.port"><br><br>
-            Username<br>
-            <input type="text" name="username" ng-model="project.databaseConnection.username" required><br><br>
-            Password<br>
-            <input type="password" name="password" ng-model="project.databaseConnection.password" required><br><br>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">Project Name</label>
+                <div class="col-sm-9">
+                    <input class="form-control" type="text" name="project" ng-model="project.name" required unique-project>
+                </div>
+            </div>
             <br>
+
+            <div class="form-group">
+                <label class="col-sm-3 control-label">Database Host IP</label>
+                <div class="col-sm-9">
+                    <input class="form-control" type="text" name="host" ng-model="project.databaseConnection.host" required>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label class="col-sm-3 control-label">Port</label>
+                <div class="col-sm-9">
+                    <input class="form-control" type="number" name="port" ng-model="project.databaseConnection.port">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label class="col-sm-3 control-label">Username</label>
+                <div class="col-sm-9">
+                    <input class="form-control" type="text" name="username" ng-model="project.databaseConnection.username" required>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label class="col-sm-3 control-label">Password</label>
+                <div class="col-sm-9">
+                    <input class="form-control" type="password" name="password" ng-model="project.databaseConnection.password" required>
+                </div>
+            </div>
+                
+
+
             
         </div>
         <div class="modal-footer">
