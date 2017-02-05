@@ -62,6 +62,12 @@
           // the collapse/expand button
           $("PanelExpanderButton", "LIST",  // the name of the element whose visibility this button toggles
             { row: 0, alignment: go.Spot.TopRight }),
+
+          //This adds the buttons to exspand or collaspe the tree
+          $("TreeExpanderButton",
+        { alignment: go.Spot.Top, alignmentFocus: go.Spot.Bottom },
+        { visible: true }),
+
           // the list of Panels, each showing an attribute
           $(go.Panel, "Vertical",
             {
@@ -138,15 +144,12 @@
     ];
     var linkDataArray = [
 
-
-
-
-
       { from: "Products", to: "Suppliers", text: "0..N", toText: "1" },
       { from: "Products", to: "Categories", text: "0..N", toText: "1" },
       { from: "Order Details", to: "Products", text: "0..N", toText: "1" }
     ];
     myDiagram.model = new go.GraphLinksModel(nodeDataArray, linkDataArray);
+
   }
 
   	function FDLayout(){
