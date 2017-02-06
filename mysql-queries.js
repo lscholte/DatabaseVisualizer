@@ -4,7 +4,7 @@ function sendError(message, errObject, res)
 {
     console.log("SQL Error: " + message);
     console.log(errObject);
-    res.json({
+    res.status(500).json({
         "code": 100,
         "status": message
     });

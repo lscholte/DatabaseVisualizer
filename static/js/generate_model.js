@@ -156,7 +156,6 @@ function TLayout() {
 }
 
 function PrintImage() {
-    // img = new Image();
     img = myDiagram.makeImage({
         scale: 1
     });

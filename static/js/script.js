@@ -126,34 +126,30 @@ angular.module("test", ["ngCookies", "ngRoute", "ui.bootstrap"])
 
     var project = projectService.getSelectedProject();
 
-    $scope.status = $sce.trustAsHtml("<h1>(Loading data, please wait...)</h1>");
+    $scope.status = $sce.trustAsHtml("<h2>(Loading data, please wait...)</h2>");
 
-    $scope.queries = {
-        finished: false,
+    var queries = {
         schema: null,
         relations: null
     };
 
-    $scope.$watch('queries.finished', function() {
-        if ($scope.queries.finished)
-        {
-            console.log($scope.queries);
-            gojs_init($scope.queries.schema, $scope.queries.relations);
-            $scope.status = "";
-        }
-    });
+    function finishedQueries() {
+        console.log(queries);
+        gojs_init(queries.schema, queries.relations);
+        $scope.status = '';
+    }
 
     $http({
         method: 'POST',
         url: '/sql/schema',
         data: project.databaseConnection
     }).then(function successCallback(response) {
-        $scope.queries.schema = response.data;
-        if ($scope.queries.relations !== null) {
-            $scope.queries.finished = true;
+        queries.schema = response.data;
+        if (queries.relations !== null) {
+            finishedQueries();
         }
     }, function errorCallback(response) {
-        // handle error
+        $scope.status = $sce.trustAsHtml('<h2 style="color:red">Error loading data! ' + (response.data ? '(' + response.data.message + ')' : '') + '</h2>');
     });
 
     $http({
@@ -161,12 +157,12 @@ angular.module("test", ["ngCookies", "ngRoute", "ui.bootstrap"])
         url: '/sql/relations',
         data: project.databaseConnection
     }).then(function successCallback(response) {
-        $scope.queries.relations = response.data;
-        if ($scope.queries.schema !== null) {
-            $scope.queries.finished = true;
+        queries.relations = response.data;
+        if (queries.schema !== null) {
+            finishedQueries();
         }
     }, function errorCallback(response) {
-        // handle error
+        $scope.status = $sce.trustAsHtml('<h2 style="color:red">Error loading data! ' + (response.data ? '(' + response.data.message + ')' : '') + '</h2>');
     });
 
 }).service("projectService", function($cookies) {
@@ -185,7 +181,7 @@ angular.module("test", ["ngCookies", "ngRoute", "ui.bootstrap"])
             return true;
         }
         return false;
-    }
+    };
 
     service.addProject = function(project) {
         var allProjects = service.getAllProjects();
