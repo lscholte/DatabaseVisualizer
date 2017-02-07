@@ -48,8 +48,9 @@ jspm_packages
 # Output of 'npm pack'
 *.tgz
 
-# Yarn Integrity file
+# Yarn files
 .yarn-integrity
+yarn.lock
 
 # OS X
 .DS_Store
