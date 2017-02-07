@@ -1,7 +1,6 @@
 var mysql = require('mysql');
 
-function sendError(message, errObject, res)
-{
+function sendError(message, errObject, res) {
     console.log("SQL Error: " + message);
     console.log(errObject);
     res.status(500).json({
@@ -10,8 +9,7 @@ function sendError(message, errObject, res)
     });
 }
 
-function performQuery(connectionParams, query, errorCallback, callback)
-{
+function performQuery(connectionParams, query, errorCallback, callback) {
     // Connection is defined by post variables
     var connection = mysql.createConnection({
         host: connectionParams.host,
@@ -21,7 +19,7 @@ function performQuery(connectionParams, query, errorCallback, callback)
         database: connectionParams.database
     });
 
-    connection.connect(function (err) {
+    connection.connect(function(err) {
         if (err) {
             connection.end();
             errorCallback("Error connecting to database", err);
@@ -30,11 +28,10 @@ function performQuery(connectionParams, query, errorCallback, callback)
 
         console.log('Connected as id ' + connection.threadId);
 
-        connection.query(query, function (err, rows) {
+        connection.query(query, function(err, rows) {
             connection.end();
 
-            if (err)
-            {
+            if (err) {
                 errorCallback("Error executing query", err);
                 return;
             }
@@ -42,7 +39,7 @@ function performQuery(connectionParams, query, errorCallback, callback)
             callback(rows);
         });
 
-        connection.on('error', function (err) {
+        connection.on('error', function(err) {
             connection.end();
             errorCallback("Database connection error", err);
         });
@@ -71,21 +68,22 @@ module.exports.getSchemaAction = function(req, res) {
             // Build our json object for go.js
             var tables = [];
 
-            while (rows.length > 0)
-            {
+            while (rows.length > 0) {
                 var row = rows.shift();
 
                 // This looks gross. Thank closures.
                 var table = tables.find((function(row) {
-                    return function (e) {
+                    return function(e) {
                         if (e.key === row.table)
                             return true;
                     }
                 })(row));
 
-                if (table === undefined)
-                {
-                    table = {key: row.table, items: []};
+                if (table === undefined) {
+                    table = {
+                        key: row.table,
+                        items: []
+                    };
                     tables.push(table);
                 }
 
@@ -113,7 +111,7 @@ module.exports.getRelationsAction = function(req, res) {
         function(m, e) {
             sendError(m, e, res);
         },
-        function (rows) {
+        function(rows) {
             res.json(rows);
         }
     );

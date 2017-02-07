@@ -17,7 +17,7 @@ app.post('/sql/relations', mysqlQueries.getRelationsAction);
 
 // Redirect any other paths to angular
 app.all(/\/.*/, function(req, res) {
-   res.redirect('/');
+    res.redirect('/');
 });
 
 var port = 3000;
