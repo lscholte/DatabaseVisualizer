@@ -20,5 +20,7 @@ app.all(/\/.*/, function(req, res) {
    res.redirect('/');
 });
 
-app.listen(3000);
-console.log('Listening on port 3000...');
+var port = 3000;
+
+app.listen(port);
+console.log('Listening at http://localhost:%s/', port);
