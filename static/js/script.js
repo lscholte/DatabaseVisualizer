@@ -65,6 +65,7 @@ angular.module("test", ["ngCookies", "ngRoute", "ui.bootstrap"])
 
         $scope.project = {
             name: null,
+            showUnrelated: true,
             databaseConnection: {
                 host: null,
                 port: null,
@@ -141,29 +142,52 @@ angular.module("test", ["ngCookies", "ngRoute", "ui.bootstrap"])
 
         $http({
             method: 'POST',
-            url: '/sql/schema',
+            url: '/sql/relations',
             data: project.databaseConnection
         }).then(function successCallback(response) {
-            queries.schema = response.data;
-            if (queries.relations !== null) {
+            queries.relations = response.data;
+
+            // If we are limiting to only related tables, create an array of tables that have relations and get schema
+            if (!project.showUnrelated) {
+                var tables = {};
+                response.data.forEach(function(rel) {
+                    tables[rel.from] = null;
+                    tables[rel.to] = null;
+                });
+                getSchema(Object.keys(tables));
+            }
+            // Otherwise we check if we have already gotten schema and then run the finishedQueries code if we have
+            else if (queries.schema !== null) {
                 finishedQueries();
             }
         }, function errorCallback(response) {
             $scope.status = $sce.trustAsHtml('<h2 style="color:red">Error loading data! ' + (response.data ? '(' + response.data.message + ')' : '') + '</h2>');
         });
 
-        $http({
-            method: 'POST',
-            url: '/sql/relations',
-            data: project.databaseConnection
-        }).then(function successCallback(response) {
-            queries.relations = response.data;
-            if (queries.schema !== null) {
-                finishedQueries();
-            }
-        }, function errorCallback(response) {
-            $scope.status = $sce.trustAsHtml('<h2 style="color:red">Error loading data! ' + (response.data ? '(' + response.data.message + ')' : '') + '</h2>');
-        });
+        // Depending on whether or not we want to limit to only related tables, we may need to wait for relations before getting schema.
+        function getSchema(limitTables) {
+            var data = project.databaseConnection;
+            data.limitTables = limitTables;
+
+            $http({
+                method: 'POST',
+                url: '/sql/schema',
+                data: data
+            }).then(function successCallback(response) {
+                queries.schema = response.data;
+
+                // Check if we have already gotten relations, and if so, run fishedQueries code
+                if (queries.relations !== null) {
+                    finishedQueries();
+                }
+            }, function errorCallback(response) {
+                $scope.status = $sce.trustAsHtml('<h2 style="color:red">Error loading data! ' + (response.data ? '(' + response.data.message + ')' : '') + '</h2>');
+            });
+        }
+
+        // If we aren't limiting our results, then we can go ahead and get schema now
+        if (project.showUnrelated)
+            getSchema(null);
 
     }).service("projectService", function($cookies) {
 

@@ -1,3 +1,5 @@
+var myDiagram;
+
 function gojs_init(schema, relations) {
     var $ = go.GraphObject.make; // for conciseness in defining templates
 
@@ -14,8 +16,8 @@ function gojs_init(schema, relations) {
     // Define brushes for nodes (in object for easy mapping from sql json data)
     var brushes = {
         PrimaryForeign: $(go.Brush, "Linear", {
-            0: "rgb(254, 221, 50)",
-            1: "rgb(67, 101, 56)"
+            0.15: "rgb(254, 221, 50)",
+            0.85: "rgb(67, 101, 56)"
         }),
         Primary: $(go.Brush, "Linear", {
             0: "rgb(254, 221, 50)",
@@ -168,29 +170,37 @@ function gojs_init(schema, relations) {
 }
 
 function FDLayout() {
-    myDiagram.layout = new go.ForceDirectedLayout;
+    if (myDiagram)
+        myDiagram.layout = new go.ForceDirectedLayout;
 }
 
 function GLayout() {
-    myDiagram.layout = new go.GridLayout;
+    if (myDiagram)
+        myDiagram.layout = new go.GridLayout;
 }
 
 function CLayout() {
-    myDiagram.layout = new go.CircularLayout;
+    if (myDiagram)
+        myDiagram.layout = new go.CircularLayout;
 }
 
 function LDLayout() {
-    myDiagram.layout = new go.LayeredDigraphLayout;
+    if (myDiagram)
+        myDiagram.layout = new go.LayeredDigraphLayout;
 }
 
 function TLayout() {
-    myDiagram.layout = new go.TreeLayout;
+    if (myDiagram)
+        myDiagram.layout = new go.TreeLayout;
 }
 
 function PrintImage() {
-    img = myDiagram.makeImage({
-        scale: 1
-    });
-    uriContent = img.getAttribute("src");
-    newWindow = window.open(uriContent, 'Entity relationship diagram');
+    if (myDiagram)
+    {
+        var img = myDiagram.makeImage({
+            scale: 1,
+            maxSize: new go.Size(Infinity, Infinity)
+        });
+        window.open(img.getAttribute("src"), 'Entity relationship diagram');
+    }
 }

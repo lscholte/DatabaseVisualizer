@@ -9,7 +9,7 @@ function sendError(message, errObject, res) {
     });
 }
 
-function performQuery(connectionParams, query, errorCallback, callback) {
+function performQuery(connectionParams, query, queryParams, errorCallback, callback) {
     // Connection is defined by post variables
     var connection = mysql.createConnection({
         host: connectionParams.host,
@@ -28,7 +28,7 @@ function performQuery(connectionParams, query, errorCallback, callback) {
 
         console.log('Connected as id ' + connection.threadId);
 
-        connection.query(query, function(err, rows) {
+        connection.query(query, queryParams, function(err, rows) {
             connection.end();
 
             if (err) {
@@ -49,6 +49,7 @@ function performQuery(connectionParams, query, errorCallback, callback) {
 module.exports.getSchemaAction = function(req, res) {
 
     // This is a magical sql query that I crafted. It's pretty cool
+    var tables = req.body.limitTables;
     var sqlQuery = 'SELECT c.TABLE_NAME AS "table", c.COLUMN_NAME AS "column", ' +
         'SUM(CASE WHEN tc.CONSTRAINT_TYPE = "PRIMARY KEY" THEN 1 ELSE 0 END) AS "primary", ' +
         'SUM(CASE WHEN tc.CONSTRAINT_TYPE = "FOREIGN KEY" THEN 1 ELSE 0 END) AS "foreign" ' +
@@ -57,10 +58,10 @@ module.exports.getSchemaAction = function(req, res) {
         'AND kcu.TABLE_NAME = c.TABLE_NAME AND kcu.COLUMN_NAME = c.COLUMN_NAME ' +
         'LEFT JOIN information_schema.TABLE_CONSTRAINTS AS tc ON tc.TABLE_SCHEMA = c.TABLE_SCHEMA ' +
         'AND tc.TABLE_NAME = c.TABLE_NAME AND tc.CONSTRAINT_NAME = kcu.CONSTRAINT_NAME ' +
-        'WHERE c.TABLE_SCHEMA = "' + req.body.database + '" ' +
-        'GROUP BY c.TABLE_NAME, c.COLUMN_NAME ORDER BY c.TABLE_NAME, c.COLUMN_NAME';
+        'WHERE c.TABLE_SCHEMA = ? ' + (Array.isArray(tables) ? 'AND c.TABLE_NAME IN (?) ' : '') +
+        'GROUP BY c.TABLE_NAME, c.COLUMN_NAME ORDER BY c.TABLE_NAME, 3 DESC, 4 DESC, c.COLUMN_NAME';
 
-    performQuery(req.body, sqlQuery,
+    performQuery(req.body, sqlQuery, [req.body.database, tables],
         function(m, e) {
             sendError(m, e, res);
         },
@@ -105,9 +106,9 @@ module.exports.getRelationsAction = function(req, res) {
     var sqlQuery = 'SELECT kcu.TABLE_NAME as "from", kcu.REFERENCED_TABLE_NAME as "to", "0..N" as "text", "1" as "toText" ' +
         'FROM information_schema.TABLE_CONSTRAINTS AS tc ' +
         'JOIN information_schema.KEY_COLUMN_USAGE AS kcu ON tc.CONSTRAINT_NAME = kcu.CONSTRAINT_NAME ' +
-        'WHERE tc.TABLE_SCHEMA = "' + req.body.database + '" AND tc.CONSTRAINT_TYPE = "FOREIGN KEY"';
+        'WHERE tc.TABLE_SCHEMA = ? AND tc.CONSTRAINT_TYPE = "FOREIGN KEY"';
 
-    performQuery(req.body, sqlQuery,
+    performQuery(req.body, sqlQuery, [req.body.database],
         function(m, e) {
             sendError(m, e, res);
         },

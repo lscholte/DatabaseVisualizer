@@ -46,9 +46,11 @@
                 <label class="col-sm-3 control-label">Database</label>
                 <div class="col-sm-9">
                     <input class="form-control" type="text" name="database" ng-model="project.databaseConnection.database" required>
+                    <div class="checkbox">
+                        <label><input type="checkbox" name="showUnrelated" ng-model="project.showUnrelated">Include entities that have no relations</label>
+                    </div>
                 </div>
             </div>
-
 
         </div>
         <div class="modal-footer">
