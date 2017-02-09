@@ -10,6 +10,8 @@ This is a pretty cool db visualization tool. It lets you visualize a db. Yup.
 4. Once that finishes, run `node index.js`
 5. The console should show a message that it is listening on port 3000, go to <http://localhost:3000/> and verify that you can see the test page.
 
+Note, to run app on a different port, add a command line argument for the port you want. For instance, `node index.js 80` would run the app on port 80.
+
 ## DB Setup
 
 1. Ensure that MySQL is installed and functional on your local machine (the mechanism for this differs by OS).
@@ -34,12 +36,8 @@ This is a pretty cool db visualization tool. It lets you visualize a db. Yup.
 6. Start the node app<br>
   `node index.js`
 
-7. Open your browser to <http://localhost:3000/sql/get?table=dept_manager> and verify that you can see the JSON response, as shown here (using [JSONView for Chrome](https://chrome.google.com/webstore/detail/jsonview/chklaanhfefbnpoihckbnefhakgolnmc)):
+7. Open your browser to <http://localhost:3000/> and verify that you can use the tool. Try making a new project using `localhost` as the database ip, `3306` as the port, `seng371` as the username, `seng_pass` as the password, and `employees` as the database. If everything is set up properly you should be able to view that project without issues.
 
-![](media/db_response_json.png)
-
-The `employees` database has the following schema:
+The `employees` database has the following schema (note, this is not generated with this tool, but was provided by the creators of the database):
 
 ![](media/employees-schema.png)
-
-Navigating to <http://localhost:3000/sql/relations> should give you a json reply with the relations shown above. For this assignment, all relations are assumed to be one-to-many (or many-to-one, depending on how you look at it). The json response will specify the 'many' side of the relation with the `manyTable` and `manyColumn` properties, and the 'one' side of the relation with the `oneTable` and `oneColumn` properties.
