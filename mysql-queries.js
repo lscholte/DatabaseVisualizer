@@ -103,7 +103,7 @@ module.exports.getSchemaAction = function(req, res) {
 
 module.exports.getRelationsAction = function(req, res) {
 
-    var sqlQuery = 'SELECT kcu.TABLE_NAME as "from", kcu.REFERENCED_TABLE_NAME as "to", "0..N" as "text", "1" as "toText" ' +
+    var sqlQuery = 'SELECT kcu.TABLE_NAME as "to", kcu.REFERENCED_TABLE_NAME as "from", "1" as "text", "0..N" as "toText" ' +
         'FROM information_schema.TABLE_CONSTRAINTS AS tc ' +
         'JOIN information_schema.KEY_COLUMN_USAGE AS kcu ON tc.CONSTRAINT_NAME = kcu.CONSTRAINT_NAME ' +
         'WHERE tc.TABLE_SCHEMA = ? AND tc.CONSTRAINT_TYPE = "FOREIGN KEY"';
