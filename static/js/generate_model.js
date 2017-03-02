@@ -1,8 +1,11 @@
 var myDiagram;
+var nodeLocations;
 
 function gojs_init(schema, relations) {
     var $ = go.GraphObject.make; // for conciseness in defining templates
 
+    nodeLocations = {};
+    
     myDiagram =
         $(go.Diagram, "myDiagramDiv", // must name or refer to the DIV HTML element
             {
@@ -226,5 +229,29 @@ function PrintImage() {
             maxSize: new go.Size(Infinity, Infinity)
         });
         window.open(img.getAttribute("src"), 'Entity relationship diagram');
+    }
+}
+
+function SaveNodeLocations() {
+    if (myDiagram) {
+        var dataArray = myDiagram.model.nodeDataArray;
+        for (data in dataArray) {
+            var nodeData = dataArray[data];
+            var node = myDiagram.findNodeForData(nodeData);
+            var nodeLocation = node.location.copy();
+            nodeLocations[nodeData.key] = nodeLocation;
+        }
+    }
+}
+
+function LoadNodeLocations() {
+    if (myDiagram) {
+        for (key in nodeLocations) {
+            var nodeData = myDiagram.model.findNodeDataForKey(key);
+            if (nodeData) {
+                var node = myDiagram.findNodeForData(nodeData);
+                node.location = nodeLocations[key];   
+            }
+        }
     }
 }
