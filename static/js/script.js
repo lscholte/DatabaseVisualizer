@@ -128,6 +128,11 @@ angular.module("test", ["ngCookies", "ngRoute", "ui.bootstrap"])
         var project = projectService.getSelectedProject();
 
         $scope.status = $sce.trustAsHtml("<h2>(Loading data, please wait...)</h2>");
+        $scope.hiddenNodes = [];
+        $scope.showNode = function(node) {
+            node.visible = true;
+            $scope.hiddenNodes.splice($scope.hiddenNodes.indexOf(node), 1);
+        };
 
         var queries = {
             schema: null,

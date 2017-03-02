@@ -60,7 +60,6 @@ function gojs_init(schema, relations) {
         $(go.Node, "Auto", // the whole node panel
             {
                 selectionAdorned: true,
-                resizable: true,
                 layoutConditions: go.Part.LayoutStandard & ~go.Part.LayoutNodeSized,
                 fromSpot: go.Spot.AllSides,
                 toSpot: go.Spot.AllSides,
@@ -82,28 +81,41 @@ function gojs_init(schema, relations) {
                     row: 0,
                     sizing: go.RowColumnDefinition.None
                 }),
+
                 // the table header
-                $(go.TextBlock, {
+                $(go.TextBlock,
+                    {
                         row: 0,
                         alignment: go.Spot.Center,
                         margin: new go.Margin(17, 14, 0, 2), // leave room for Button
                         font: "bold 16px sans-serif"
                     },
-                    new go.Binding("text", "key")),
+                    new go.Binding("text", "key")
+                ),
+
+                $("Button",
+                    {
+                        alignment: go.Spot.TopRight,
+                        margin: new go.Margin(0, 20, 0, 30),
+                        height: 12,
+                        click: hideNode
+                    },
+                    $(go.TextBlock, "×",
+                        {
+                            alignment: go.Spot.Center,
+                            margin: new go.Margin(-2, 0, 0, 1),
+                            font: "bold 12px sans-serif"
+                        }
+                    )
+                ),
+
                 // the collapse/expand button
                 $("PanelExpanderButton", "LIST", // the name of the element whose visibility this button toggles
                     {
                         row: 0,
                         alignment: go.Spot.TopRight
-                    }),
-
-                //This adds the buttons to exspand or collaspe the tree
-                $("TreeExpanderButton", {
-                    alignment: go.Spot.Top,
-                    alignmentFocus: go.Spot.Bottom
-                }, {
-                    visible: true
-                }),
+                    }
+                ),
 
                 // the list of Panels, each showing an attribute
                 $(go.Panel, "Vertical", {
@@ -167,6 +179,18 @@ function gojs_init(schema, relations) {
     });
 
     myDiagram.model = new go.GraphLinksModel(schema, relations);
+}
+
+function hideNode(e, obj) {
+    var node = obj.part;
+
+    // Get our angular scope and add the node to the hidden nodes list
+    var scope = angular.element($(".view-proj")).scope();
+    scope.$apply(function(){
+        scope.hiddenNodes.push(node);
+    });
+
+    node.visible = false;
 }
 
 function FDLayout() {
