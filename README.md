@@ -19,9 +19,11 @@ Note, to run app on a different port, add a command line argument for the port y
 2. Create a new superuser - it's not a good practice to routinely use `root` as a user.<br>
   `mysql -uroot -p;`<br>
   `CREATE USER 'seng371'@'localhost' IDENTIFIED BY 'seng_pass';`<br>
-  `GRANT ALL PRIVILEGES ON *.* TO 'seng371'@'localhost' WITH GRANT OPTION;`
+  `GRANT ALL PRIVILEGES ON *.* TO 'seng371'@'localhost' WITH GRANT OPTION;`<br>
+  `exit;`
 
 3. Download and extract database information<br>
+  `cd /tmp`<br>
   `wget https://github.com/datacharmer/test_db/archive/master.zip;`<br>
   `unzip master.zip;`
 
@@ -33,11 +35,23 @@ Note, to run app on a different port, add a command line argument for the port y
   `time mysql -useng371 -pseng_pass -t < ./test_employees_sha.sql`<br>
   `time mysql -useng371 -pseng_pass -t < ./test_employees_md5.sql`
 
-6. Start the node app<br>
+6. Start the node app in the cloned repository<br>
+  `# (cd back to the folder...)`<br>
   `node index.js`
 
-7. Open your browser to <http://localhost:3000/> and verify that you can use the tool. Try making a new project using `localhost` as the database ip, `3306` as the port, `seng371` as the username, `seng_pass` as the password, and `employees` as the database. If everything is set up properly you should be able to view that project without issues.
+7. Open your browser to <http://localhost:3000/> and verify that you can use the tool. Try making a new project using the following values:
 
-The `employees` database has the following schema (note, this is not generated with this tool, but was provided by the creators of the database):
+```json
+    Project Name: <any name you choose>
+Database Host IP: localhost
+            Port: 3306
+        Username: seng371
+        Password: seng_pass
+        Database: employees
+```
+
+If everything is set up properly you should be able to view that project without issues.
+
+The **employees** database has the following schema (note, this is not generated with this tool, but was provided by the creators of the database):
 
 ![](media/employees-schema.png)
