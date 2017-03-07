@@ -201,8 +201,8 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
                             x: node.location.x,
                             y: node.location.y
                         },
-                        visible: node.visible,
-                        itemsVisible: node.findObject("LIST").visible
+                        entityVisibility: node.visible,
+                        attributeVisibility: node.findObject("LIST").visible
                     };
                     
                 }
@@ -348,15 +348,15 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
                 node.location.y = nodes[nodeKey].location.y;
             }
 
-            if (nodes[nodeKey].visible != null) {
-                node.visible = nodes[nodeKey].visible;
+            if (nodes[nodeKey].entityVisibility != null) {
+                node.visible = nodes[nodeKey].entityVisibility;
                 if (!node.visible) {
                     $scope.hiddenNodes.push(node);   
                 }
             }
             
-            if (nodes[nodeKey].itemsVisible != null) {
-                node.findObject("LIST").visible = nodes[nodeKey].itemsVisible;
+            if (nodes[nodeKey].attributeVisibility != null) {
+                node.findObject("LIST").visible = nodes[nodeKey].attributeVisibility;
             }
         }
     }
