@@ -1,30 +1,28 @@
 <div class="view-proj">
     <h4>Different Layouts</h4>
 
-    <button class="btn btn-default" onclick="FDLayout()">Force Directed Layout</button>
-    <button class="btn btn-default" onclick="GLayout()">Grid Layout</button>
-    <button class="btn btn-default" onclick="CLayout()">Circular Layout</button>
-    <button class="btn btn-default" onclick="LDLayout()">Layered Digraph Layout</button>
-    <button class="btn btn-default" onclick="TLayout()">Tree Layout</button>
+    <button class="btn btn-default" ng-click="FDLayout()">Force Directed Layout</button>
+    <button class="btn btn-default" ng-click="GLayout()">Grid Layout</button>
+    <button class="btn btn-default" ng-click="CLayout()">Circular Layout</button>
+    <button class="btn btn-default" ng-click="LDLayout()">Layered Digraph Layout</button>
+    <button class="btn btn-default" ng-click="TLayout()">Tree Layout</button>
 
     <h4>Export</h4>
 
-    <button class="btn btn-default" onclick="PrintImage()">Export Image</button>
-    <button class="btn btn-default" onclick="SaveNodeLocations()">Temporary Save Button</button>
-    <button class="btn btn-default" onclick="LoadNodeLocations()">Temporary Load Button</button>
+    <button class="btn btn-default" ng-click="PrintImage()">Export Image</button>
 
     <div ></div>
 
     <h3>Entity Relationship Diagram</h3>
-    <span data-ng-bind-html="status"></span>
+    <span ng-bind-html="status"></span>
     <div class="diagramDiv">
         <div id="myDiagramDiv"></div>
-        <div data-ng-if="hiddenNodes.length" class="hiddenNodes">
+        <div ng-if="hiddenNodes.length" class="hiddenNodes">
             <h4>Hidden Nodes:</h4>
             <div class="hiddenNodeScroll">
-                <div data-ng-repeat="node in hiddenNodes | orderBy: 'data.key'" class="hiddenNode">
+                <div ng-repeat="node in hiddenNodes | orderBy: 'data.key'" class="hiddenNode">
                     <div class="hiddenNodeText" title="{{ node.data.key }}">{{ node.data.key }}</div>
-                    <button class="btn btn-sm showButton" data-ng-click="showNode(node)">Show</button>
+                    <button class="btn btn-sm showButton" ng-click="showNode(node)">Show</button>
                 </div>
             </div>
         </div>

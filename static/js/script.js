@@ -1,5 +1,3 @@
-//TODO: Consider separating the controllers and services into separate files.
-//For now I piled it all into this file because it was easier that way to start
 angular.module("test", ["ngCookies", "ngRoute", "ui.bootstrap"])
 
     .config(function($routeProvider, $locationProvider) {
@@ -122,83 +120,6 @@ angular.module("test", ["ngCookies", "ngRoute", "ui.bootstrap"])
         $scope.closeDeleteProjectModal = function() {
             $uibModalInstance.close("cancel");
         };
-
-    }).controller("viewProjectController", function($scope, $rootScope, $http, $sce, projectService) {
-
-        var project = projectService.getSelectedProject();
-
-        $scope.status = $sce.trustAsHtml("<h2>(Loading data, please wait...)</h2>");
-        $scope.hiddenNodes = [];
-        $scope.showNode = function(node) {
-            node.visible = true;
-            $scope.hiddenNodes.splice($scope.hiddenNodes.indexOf(node), 1);
-        };
-
-        var queries = {
-            schema: null,
-            relations: null
-        };
-
-        function finishedQueries() {
-            console.log(queries);
-            gojs_init(queries.schema, queries.relations);
-            $scope.status = '';
-            gojs_setNodeData(project.nodes);
-        }
-
-        $http({
-            method: 'POST',
-            url: '/sql/relations',
-            data: project.databaseConnection
-        }).then(function successCallback(response) {
-            queries.relations = response.data;
-
-            // If we are limiting to only related tables, create an array of tables that have relations and get schema
-            if (!project.showUnrelated) {
-                var tables = {};
-                response.data.forEach(function(rel) {
-                    tables[rel.from] = null;
-                    tables[rel.to] = null;
-                });
-                getSchema(Object.keys(tables));
-            }
-            // Otherwise we check if we have already gotten schema and then run the finishedQueries code if we have
-            else if (queries.schema !== null) {
-                finishedQueries();
-            }
-        }, function errorCallback(response) {
-            $scope.status = $sce.trustAsHtml('<h2 style="color:red">Error loading data! ' + (response.data ? '(' + response.data.message + ')' : '') + '</h2>');
-        });
-
-        // Depending on whether or not we want to limit to only related tables, we may need to wait for relations before getting schema.
-        function getSchema(limitTables) {
-            var data = project.databaseConnection;
-            data.limitTables = limitTables;
-
-            $http({
-                method: 'POST',
-                url: '/sql/schema',
-                data: data
-            }).then(function successCallback(response) {
-                queries.schema = response.data;
-
-                // Check if we have already gotten relations, and if so, run fishedQueries code
-                if (queries.relations !== null) {
-                    finishedQueries();
-                }
-            }, function errorCallback(response) {
-                $scope.status = $sce.trustAsHtml('<h2 style="color:red">Error loading data! ' + (response.data ? '(' + response.data.message + ')' : '') + '</h2>');
-            });
-        }
-    
-        $scope.saveDiagram = function(nodes) {
-            project.nodes = nodes;
-            projectService.addProject(project);
-        };
-
-        // If we aren't limiting our results, then we can go ahead and get schema now
-        if (project.showUnrelated)
-            getSchema(null);
 
     }).service("projectService", function($cookies) {
 
