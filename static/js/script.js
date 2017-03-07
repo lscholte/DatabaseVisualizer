@@ -143,6 +143,7 @@ angular.module("test", ["ngCookies", "ngRoute", "ui.bootstrap"])
             console.log(queries);
             gojs_init(queries.schema, queries.relations);
             $scope.status = '';
+            gojs_setNodeData(project.nodes);
         }
 
         $http({
@@ -189,6 +190,11 @@ angular.module("test", ["ngCookies", "ngRoute", "ui.bootstrap"])
                 $scope.status = $sce.trustAsHtml('<h2 style="color:red">Error loading data! ' + (response.data ? '(' + response.data.message + ')' : '') + '</h2>');
             });
         }
+    
+        $scope.saveDiagram = function(nodes) {
+            project.nodes = nodes;
+            projectService.addProject(project);
+        };
 
         // If we aren't limiting our results, then we can go ahead and get schema now
         if (project.showUnrelated)

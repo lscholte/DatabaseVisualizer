@@ -1,10 +1,7 @@
 var myDiagram;
-var nodeLocations;
 
 function gojs_init(schema, relations) {
     var $ = go.GraphObject.make; // for conciseness in defining templates
-
-    nodeLocations = {};
     
     myDiagram =
         $(go.Diagram, "myDiagramDiv", // must name or refer to the DIV HTML element
@@ -12,7 +9,6 @@ function gojs_init(schema, relations) {
                 initialContentAlignment: go.Spot.Center,
                 allowDelete: false,
                 allowCopy: false,
-                layout: $(go.ForceDirectedLayout),
                 "undoManager.isEnabled": true
             });
 
@@ -182,6 +178,32 @@ function gojs_init(schema, relations) {
     });
 
     myDiagram.model = new go.GraphLinksModel(schema, relations);
+    
+    //When diagram is updated, we want node data to be stored in persistent storage
+    myDiagram.addModelChangedListener(function(event) {
+        if (event.isTransactionFinished) {
+            console.log("UPDATED");
+
+            var nodeDataToSave = {};
+            var dataArray = myDiagram.model.nodeDataArray;
+            for (data in dataArray) {
+                var nodeData = dataArray[data];
+                var node = myDiagram.findNodeForData(nodeData);
+
+                nodeDataToSave[nodeData.key] = {
+                    location: {
+                        x: node.location.x,
+                        y: node.location.y
+                    },
+                    visible: node.visible
+                };
+
+            }
+                        console.log(nodeDataToSave);
+            angular.element(document.getElementById("myDiagramDiv")).scope().saveDiagram(nodeDataToSave);
+        }
+    });
+    
 }
 
 function hideNode(e, obj) {
@@ -232,25 +254,26 @@ function PrintImage() {
     }
 }
 
-function SaveNodeLocations() {
+function gojs_setNodeData(nodes) {
     if (myDiagram) {
-        var dataArray = myDiagram.model.nodeDataArray;
-        for (data in dataArray) {
-            var nodeData = dataArray[data];
-            var node = myDiagram.findNodeForData(nodeData);
-            var nodeLocation = node.location.copy();
-            nodeLocations[nodeData.key] = nodeLocation;
-        }
-    }
-}
-
-function LoadNodeLocations() {
-    if (myDiagram) {
-        for (key in nodeLocations) {
-            var nodeData = myDiagram.model.findNodeDataForKey(key);
+        console.log(nodes);
+        for (nodeKey in nodes) {
+            var nodeData = myDiagram.model.findNodeDataForKey(nodeKey);
             if (nodeData) {
                 var node = myDiagram.findNodeForData(nodeData);
-                node.location = nodeLocations[key];   
+                if (nodes[nodeKey].location != null) {
+                    node.location.x = nodes[nodeKey].location.x;
+                    node.location.y = nodes[nodeKey].location.y;
+                }
+                
+                if (nodes[nodeKey].visible != null) {
+                    node.visible = nodes[nodeKey].visible;
+                    console.log(nodes[nodeKey].visible);
+                    if (!node.visible) {
+                        var scope = angular.element($(".view-proj")).scope();
+                        scope.hiddenNodes.push(node);   
+                    }
+                }
             }
         }
     }
