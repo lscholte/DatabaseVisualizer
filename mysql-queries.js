@@ -1,4 +1,7 @@
-var mysql = require('mysql');
+"use strict";
+
+let mysql = require('mysql');
+let grouper = require('./group-relations.js');
 
 function sendError(message, errObject, res) {
     console.log("SQL Error: " + message);
@@ -11,7 +14,7 @@ function sendError(message, errObject, res) {
 
 function performQuery(connectionParams, query, queryParams, errorCallback, callback) {
     // Connection is defined by post variables
-    var connection = mysql.createConnection({
+    let connection = mysql.createConnection({
         host: connectionParams.host,
         port: connectionParams.port,
         user: connectionParams.user,
@@ -49,8 +52,8 @@ function performQuery(connectionParams, query, queryParams, errorCallback, callb
 module.exports.getSchemaAction = function(req, res) {
 
     // This is a magical sql query that I crafted. It's pretty cool
-    var tables = req.body.limitTables;
-    var sqlQuery = 'SELECT c.TABLE_NAME AS "table", c.COLUMN_NAME AS "column", ' +
+    let tables = req.body.limitTables;
+    let sqlQuery = 'SELECT c.TABLE_NAME AS "table", c.COLUMN_NAME AS "column", ' +
         'SUM(CASE WHEN tc.CONSTRAINT_TYPE = "PRIMARY KEY" THEN 1 ELSE 0 END) AS "primary", ' +
         'SUM(CASE WHEN tc.CONSTRAINT_TYPE = "FOREIGN KEY" THEN 1 ELSE 0 END) AS "foreign" ' +
         'FROM information_schema.`COLUMNS` AS c ' +
@@ -67,18 +70,15 @@ module.exports.getSchemaAction = function(req, res) {
         },
         function(rows) {
             // Build our json object for go.js
-            var tables = [];
+            let tables = [];
 
             while (rows.length > 0) {
-                var row = rows.shift();
+                let row = rows.shift();
 
                 // This looks gross. Thank closures.
-                var table = tables.find((function(row) {
-                    return function(e) {
-                        if (e.key === row.table)
-                            return true;
-                    }
-                })(row));
+                let table = tables.find((e) => {
+                    return e.key === row.table;
+                });
 
                 if (table === undefined) {
                     table = {
@@ -90,11 +90,15 @@ module.exports.getSchemaAction = function(req, res) {
 
                 table.items.push({
                     name: row.column,
-                    iskey: row.primary || row.foreign,
+                    isPk: row.primary,
+                    isFk: row.foreign,
                     figure: row.primary || row.foreign ? "Decision" : "Cube1",
                     color: row.primary && row.foreign ? "PrimaryForeign" : row.primary ? "Primary" : row.foreign ? "Foreign" : "None"
                 })
             }
+
+            // this is just for testing
+            grouper.group(tables);
 
             res.json(tables);
         }
@@ -103,7 +107,7 @@ module.exports.getSchemaAction = function(req, res) {
 
 module.exports.getRelationsAction = function(req, res) {
 
-    var sqlQuery = 'SELECT kcu.TABLE_NAME as "from", kcu.REFERENCED_TABLE_NAME as "to", "0..N" as "text", "1" as "toText" ' +
+    let sqlQuery = 'SELECT kcu.TABLE_NAME as "from", kcu.REFERENCED_TABLE_NAME as "to", "0..N" as "text", "1" as "toText" ' +
         'FROM information_schema.TABLE_CONSTRAINTS AS tc ' +
         'JOIN information_schema.KEY_COLUMN_USAGE AS kcu ON tc.CONSTRAINT_NAME = kcu.CONSTRAINT_NAME ' +
         'WHERE tc.TABLE_SCHEMA = ? AND tc.CONSTRAINT_TYPE = "FOREIGN KEY"';
