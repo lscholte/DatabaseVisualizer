@@ -249,7 +249,7 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
                 scale: 1,
                 maxSize: new go.Size(Infinity, Infinity)
             });
-            window.open(img.getAttribute("src"), 'Entity relationship diagram');
+            window.open(img.getAttribute("src"), "Entity relationship diagram");
         }
     };
     
@@ -281,8 +281,8 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
     }
 
     $http({
-        method: 'POST',
-        url: '/sql/relations',
+        method: "POST",
+        url: "/sql/relations",
         data: project.databaseConnection
     }).then(function successCallback(response) {
         queries.relations = response.data;
@@ -301,7 +301,7 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
             finishedQueries();
         }
     }, function errorCallback(response) {
-        $scope.status = $sce.trustAsHtml('<h2 style="color:red">Error loading data! ' + (response.data ? '(' + response.data.message + ')' : '') + '</h2>');
+        $scope.status = $sce.trustAsHtml("<h2 style='color:red'>Error loading data! " + (response.data ? "(" + response.data.message + ")" : "") + "</h2>");
     });
 
     // Depending on whether or not we want to limit to only related tables, we may need to wait for relations before getting schema.
@@ -310,8 +310,8 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
         data.limitTables = limitTables;
 
         $http({
-            method: 'POST',
-            url: '/sql/schema',
+            method: "POST",
+            url: "/sql/schema",
             data: data
         }).then(function successCallback(response) {
             queries.schema = response.data;
@@ -321,7 +321,7 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
                 finishedQueries();
             }
         }, function errorCallback(response) {
-            $scope.status = $sce.trustAsHtml('<h2 style="color:red">Error loading data! ' + (response.data ? '(' + response.data.message + ')' : '') + '</h2>');
+            $scope.status = $sce.trustAsHtml("<h2 style='color:red'>Error loading data! " + (response.data ? "(" + response.data.message + ")" : "") + "</h2>");
         });
     }
 
