@@ -185,11 +185,11 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
         });
 
         myDiagram.model = new go.GraphLinksModel(schema, relations);
+        
 
         //When diagram is updated, we want node data to be stored in persistent storage
         myDiagram.addModelChangedListener(function(event) {
             if (event.isTransactionFinished) {
-
                 var nodeDataToSave = {};
                 var dataArray = myDiagram.model.nodeDataArray;
                 for (data in dataArray) {
@@ -201,9 +201,10 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
                             x: node.location.x,
                             y: node.location.y
                         },
-                        visible: node.visible
+                        visible: node.visible,
+                        itemsVisible: node.findObject("LIST").visible
                     };
-
+                    
                 }
                 
                 saveDiagram(nodeDataToSave);
@@ -329,6 +330,8 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
         projectService.addProject(project);
     };
     
+    
+    //Reads the persisted node data and updates the diagram
     function loadDiagram() {
         if (!myDiagram) {
             return;
@@ -350,6 +353,10 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
                 if (!node.visible) {
                     $scope.hiddenNodes.push(node);   
                 }
+            }
+            
+            if (nodes[nodeKey].itemsVisible != null) {
+                node.findObject("LIST").visible = nodes[nodeKey].itemsVisible;
             }
         }
     }
