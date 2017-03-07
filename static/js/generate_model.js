@@ -1,4 +1,5 @@
 angular.module("test").controller("viewProjectController", function($scope, $rootScope, $http, $sce, projectService) {
+    
     var project = projectService.getSelectedProject();
 
     $scope.status = $sce.trustAsHtml("<h2>(Loading data, please wait...)</h2>");
@@ -6,7 +7,6 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
     
     var myDiagram;
 
-    
     function gojs_init(schema, relations) {
         var $ = go.GraphObject.make; // for conciseness in defining templates
 
@@ -206,20 +206,10 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
 
                 }
                 
-                $scope.saveDiagram(nodeDataToSave);
+                saveDiagram(nodeDataToSave);
             }
         });
 
-    }
-    
-    function hideNode(e, obj) {
-        var node = obj.part;
-
-        $scope.$apply(function(){
-            $scope.hiddenNodes.push(node);
-        });
-
-        node.visible = false;
     }
 
     $scope.FDLayout = function() {
@@ -261,35 +251,21 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
             window.open(img.getAttribute("src"), 'Entity relationship diagram');
         }
     };
-
-    function gojs_setNodeData(nodes) {
-        if (myDiagram) {
-            console.log(nodes);
-            for (nodeKey in nodes) {
-                var nodeData = myDiagram.model.findNodeDataForKey(nodeKey);
-                if (nodeData) {
-                    var node = myDiagram.findNodeForData(nodeData);
-                    if (nodes[nodeKey].location != null) {
-                        node.location.x = nodes[nodeKey].location.x;
-                        node.location.y = nodes[nodeKey].location.y;
-                    }
-
-                    if (nodes[nodeKey].visible != null) {
-                        node.visible = nodes[nodeKey].visible;
-                        console.log(nodes[nodeKey].visible);
-                        if (!node.visible) {
-                            $scope.hiddenNodes.push(node);   
-                        }
-                    }
-                }
-            }
-        }
-    }
     
     $scope.showNode = function(node) {
         node.visible = true;
         $scope.hiddenNodes.splice($scope.hiddenNodes.indexOf(node), 1);
     };
+    
+    function hideNode(e, obj) {
+        var node = obj.part;
+
+        $scope.$apply(function(){
+            $scope.hiddenNodes.push(node);
+        });
+
+        node.visible = false;
+    }
 
     var queries = {
         schema: null,
@@ -300,7 +276,7 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
         console.log(queries);
         gojs_init(queries.schema, queries.relations);
         $scope.status = '';
-        gojs_setNodeData(project.nodes);
+        loadDiagram();
     }
 
     $http({
@@ -348,10 +324,35 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
         });
     }
 
-    $scope.saveDiagram = function(nodes) {
+    function saveDiagram(nodes) {
         project.nodes = nodes;
         projectService.addProject(project);
     };
+    
+    function loadDiagram() {
+        if (!myDiagram) {
+            return;
+        }
+        nodes = project.nodes;
+        for (nodeKey in nodes) {
+            var nodeData = myDiagram.model.findNodeDataForKey(nodeKey);
+            if (!nodeData) {
+                continue;
+            }
+            var node = myDiagram.findNodeForData(nodeData);
+            if (nodes[nodeKey].location != null) {
+                node.location.x = nodes[nodeKey].location.x;
+                node.location.y = nodes[nodeKey].location.y;
+            }
+
+            if (nodes[nodeKey].visible != null) {
+                node.visible = nodes[nodeKey].visible;
+                if (!node.visible) {
+                    $scope.hiddenNodes.push(node);   
+                }
+            }
+        }
+    }
 
     // If we aren't limiting our results, then we can go ahead and get schema now
     if (project.showUnrelated) {
