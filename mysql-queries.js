@@ -49,10 +49,7 @@ function performQuery(connectionParams, query, queryParams, errorCallback, callb
     });
 }
 
-module.exports.getSchemaAction = function(req, res) {
-
-    // This is a magical sql query that I crafted. It's pretty cool
-    let tables = req.body.limitTables;
+function getSchema(connectionParams, limitTables, err, success) {
     let sqlQuery = 'SELECT c.TABLE_NAME AS "table", c.COLUMN_NAME AS "column", ' +
         'SUM(CASE WHEN tc.CONSTRAINT_TYPE = "PRIMARY KEY" THEN 1 ELSE 0 END) AS "primary", ' +
         'SUM(CASE WHEN tc.CONSTRAINT_TYPE = "FOREIGN KEY" THEN 1 ELSE 0 END) AS "foreign" ' +
@@ -61,13 +58,10 @@ module.exports.getSchemaAction = function(req, res) {
         'AND kcu.TABLE_NAME = c.TABLE_NAME AND kcu.COLUMN_NAME = c.COLUMN_NAME ' +
         'LEFT JOIN information_schema.TABLE_CONSTRAINTS AS tc ON tc.TABLE_SCHEMA = c.TABLE_SCHEMA ' +
         'AND tc.TABLE_NAME = c.TABLE_NAME AND tc.CONSTRAINT_NAME = kcu.CONSTRAINT_NAME ' +
-        'WHERE c.TABLE_SCHEMA = ? ' + (Array.isArray(tables) ? 'AND c.TABLE_NAME IN (?) ' : '') +
+        'WHERE c.TABLE_SCHEMA = ? ' + (Array.isArray(limitTables) ? 'AND c.TABLE_NAME IN (?) ' : '') +
         'GROUP BY c.TABLE_NAME, c.COLUMN_NAME ORDER BY c.TABLE_NAME, 3 DESC, 4 DESC, c.COLUMN_NAME';
 
-    performQuery(req.body, sqlQuery, [req.body.database, tables],
-        function(m, e) {
-            sendError(m, e, res);
-        },
+    performQuery(connectionParams, sqlQuery, [connectionParams.database, limitTables], err,
         function(rows) {
             // Build our json object for go.js
             let tables = [];
@@ -97,9 +91,28 @@ module.exports.getSchemaAction = function(req, res) {
                 })
             }
 
-            // this is just for testing
-            grouper.group(tables);
+            success(tables);
+        }
+    );
+}
 
+module.exports.getAbstractSchemaAction = function (req, res) {
+    getSchema(req.body, req.body.limitTables,
+        function(m, e) {
+            sendError(m, e, res);
+        },
+        function(tables) {
+            res.json(grouper.group(tables));
+        }
+    );
+};
+
+module.exports.getSchemaAction = function(req, res) {
+    getSchema(req.body, req.body.limitTables,
+        function(m, e) {
+            sendError(m, e, res);
+        },
+        function (tables) {
             res.json(tables);
         }
     );
@@ -116,7 +129,7 @@ module.exports.getRelationsAction = function(req, res) {
         function(m, e) {
             sendError(m, e, res);
         },
-        function(rows) {
+        function (rows) {
             res.json(rows);
         }
     );

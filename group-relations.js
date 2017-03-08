@@ -200,9 +200,51 @@ function group(rels) {
         removeFrom(remainingRels, remove);
     }
 
-    // for testing
+    // Now we will build up the variables to be friendly for gojs and return
     let abstractEntities = cluster.slice(0, nes + 1);
     let abstractRelations = cluster.slice(nas);
+
+    // Start with schema. Keys for abstract entities/relations start with ~ to avoid overlapping with table keys
+    let schema = [];
+
+    for (let i = 0; i < abstractEntities.length; i++) {
+        let key = '~E' + (i + 1);
+        let title = 'Abstract Entity ' + (i + 1);
+        let schemaObj = { key: key, title: title, isRelation: false, isGroup: true, items: [] };
+        for (let table of abstractEntities[i]) {
+            schemaObj.items.push({name: table.key, color: 'Foreign', figure: 'DividedProcess'});
+            table.group = key;
+        }
+
+        schema.push(schemaObj);
+    }
+
+    for (let i = 0; i < abstractRelations.length; i++) {
+        let key = '~R' + (i + 1);
+        let title = 'Abstract Relation ' + (i + 1);
+        let schemaObj = { key: key, title: title, isRelation: true, isGroup: true, items: [] };
+        for (let table of abstractRelations[i]) {
+            schemaObj.items.push({name: table.key, color: 'Primary', figure: 'DividedProcess'});
+            table.group = key;
+        }
+
+        schema.push(schemaObj);
+    }
+
+    // Add tables themselves
+    schema = schema.concat(rels);
+
+    // Now do relations
+    let relations = [];
+    for (let i = 0; i < argument.length; i++)
+        for (let j = 0; j < argument[i].length; j++)
+            if (argument[i][j])
+                relations.push({from: '~E' + (j + 1), to: '~R' + (i + 1)});
+
+    return {
+        schema: schema,
+        relations: relations
+    }
 }
 
 module.exports.group = group;

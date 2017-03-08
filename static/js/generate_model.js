@@ -1,10 +1,10 @@
 angular.module("test").controller("viewProjectController", function($scope, $rootScope, $http, $sce, projectService) {
-    
+
     var project = projectService.getSelectedProject();
 
     $scope.status = $sce.trustAsHtml("<h2>(Loading data, please wait...)</h2>");
     $scope.hiddenNodes = [];
-    
+
     var myDiagram;
 
     function gojs_init(schema, relations) {
@@ -17,7 +17,8 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
                     allowDelete: false,
                     allowCopy: false,
                     "undoManager.isEnabled": true
-                });
+                }
+            );
 
         // Define brushes for nodes (in object for easy mapping from sql json data)
         var brushes = {
@@ -61,6 +62,37 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
                     new go.Binding("text", "name"))
             );
 
+        // define the group template
+        myDiagram.groupTemplate =
+            $(go.Group, "Auto",
+                {
+                    isSubGraphExpanded: false
+                },
+                new go.Binding("name", "key"),
+                $(go.Shape, "RoundedRectangle",  // surrounds everything
+                    { parameter1: 10 },
+                    new go.Binding("fill", "isRelation", function(val) {return val ? "LightSteelBlue" : "lightgray"})
+                ),
+                $(go.Panel, "Vertical",  // position header above the subgraph
+                    $(go.Panel, "Horizontal",
+                        $("SubGraphExpanderButton", { margin: new go.Margin(0, 3, 5, 0) }),
+                        $(go.TextBlock, { font: "Bold 12pt Sans-Serif" }, new go.Binding("text", "title"))
+                    ),
+                    $(go.Placeholder, { padding: 5 }),
+                    $(go.Panel, "Vertical", {
+                            name: "TABLE_LIST",
+                            padding: 3,
+                            alignment: go.Spot.TopLeft,
+                            defaultAlignment: go.Spot.Left,
+                            stretch: go.GraphObject.Horizontal,
+                            itemTemplate: itemTempl,
+                        },
+                        new go.Binding("visible", "isSubGraphExpanded", function (val) { return !val; }).ofObject(),
+                        new go.Binding("itemArray", "items")
+                    )
+                )
+            );
+
         // define the Node template, representing an entity
         myDiagram.nodeTemplate =
             $(go.Node, "Auto", // the whole node panel
@@ -102,24 +134,21 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
                     $("Button",
                         {
                             alignment: go.Spot.TopRight,
-                            margin: new go.Margin(0, 20, 0, 30),
-                            height: 12,
-                            click: hideNode
+                            height: 13,
+                            click: hideNode,
+                            padding: 0,
+                            "ButtonBorder.fill": "transparent",
+                            "ButtonBorder.stroke": "transparent",
                         },
-                        $(go.TextBlock, "×",
-                            {
-                                alignment: go.Spot.Center,
-                                margin: new go.Margin(-2, 0, 0, 1),
-                                font: "bold 12px sans-serif"
-                            }
-                        )
+                        $(go.Shape, "ThinX", {width: 8, height: 8, margin: 0})
                     ),
 
                     // the collapse/expand button
                     $("PanelExpanderButton", "LIST", // the name of the element whose visibility this button toggles
                         {
                             row: 0,
-                            alignment: go.Spot.TopRight
+                            alignment: go.Spot.TopRight,
+                            margin: new go.Margin(0, 20, 0, 30),
                         }
                     ),
 
@@ -176,16 +205,16 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
             );
 
         // create the model for the E-R diagram
-
-
         schema.forEach(function(e) {
-            e.items.forEach(function(i) {
-                i.color = brushes[i.color];
-            })
+            if (e.items !== undefined) {
+                e.items.forEach(function(i) {
+                    i.color = brushes[i.color];
+                });
+            }
         });
 
         myDiagram.model = new go.GraphLinksModel(schema, relations);
-        
+
 
         //When diagram is updated, we want node data to be stored in persistent storage
         myDiagram.addModelChangedListener(function(event) {
@@ -193,9 +222,10 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
             if (event.isTransactionFinished) {
                 var nodeDataToSave = {};
                 var dataArray = myDiagram.model.nodeDataArray;
-                for (data in dataArray) {
+                for (var data in dataArray) {
                     var nodeData = dataArray[data];
                     var node = myDiagram.findNodeForData(nodeData);
+                    var list = node.findObject("LIST");
 
                     nodeDataToSave[nodeData.key] = {
                         location: {
@@ -203,11 +233,11 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
                             y: node.location.y
                         },
                         entityVisibility: node.visible,
-                        attributeVisibility: node.findObject("LIST").visible
+                        attributeVisibility: !list ? null : list.visible
                     };
-                    
+
                 }
-                
+
                 saveDiagram(nodeDataToSave);
             }
         });
@@ -216,34 +246,34 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
 
     $scope.FDLayout = function() {
         if (myDiagram) {
-            myDiagram.layout = new go.ForceDirectedLayout; 
+            myDiagram.layout = new go.ForceDirectedLayout();
         }
     };
 
     $scope.GLayout = function() {
         if (myDiagram) {
-            myDiagram.layout = new go.GridLayout;
+            myDiagram.layout = new go.GridLayout();
         }
     };
 
     $scope.CLayout = function() {
         if (myDiagram) {
-            myDiagram.layout = new go.CircularLayout;
+            myDiagram.layout = new go.CircularLayout();
         }
     };
 
     $scope.LDLayout = function() {
         if (myDiagram) {
-            myDiagram.layout = new go.LayeredDigraphLayout;
+            myDiagram.layout = new go.LayeredDigraphLayout();
         }
     };
 
     $scope.TLayout = function() {
         if (myDiagram) {
-            myDiagram.layout = new go.TreeLayout;
+            myDiagram.layout = new go.TreeLayout();
         }
-    }
-        
+    };
+
     $scope.setAllAttributeVisibilty = function(visible) {
         if (myDiagram) {
             var dataArray = myDiagram.model.nodeDataArray;
@@ -256,7 +286,7 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
             }
             myDiagram.model.commitTransaction("Set Attribute Visibility");
         }
-    }
+    };
 
     $scope.PrintImage = function() {
         if (myDiagram) {
@@ -267,12 +297,12 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
             window.open(img.getAttribute("src"), "Entity relationship diagram");
         }
     };
-    
+
     $scope.showNode = function(node) {
         node.visible = true;
         $scope.hiddenNodes.splice($scope.hiddenNodes.indexOf(node), 1);
     };
-    
+
     function hideNode(e, obj) {
         var node = obj.part;
 
@@ -289,6 +319,30 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
     };
 
     function finishedQueries() {
+        if (project.abstractSchema) {
+            // The schema element will actually have schema and relations. We want to merge the relations into ours
+            queries.relations = queries.schema.relations.concat(queries.relations);
+            queries.schema = queries.schema.schema;
+
+            // We and also remove relations between separate abstract entities (they crowd things and cause really buggy
+            // gojs behaviour)
+            queries.relations = queries.relations.filter(function(relation) {
+                var fromEntity = queries.schema.find(function(entity) {
+                    return entity.key === relation.from;
+                });
+
+                // Skip group relations
+                if (fromEntity.isGroup)
+                    return true;
+
+                var toEntity = queries.schema.find(function(entity) {
+                    return entity.key === relation.to;
+                });
+
+                return fromEntity.group === toEntity.group;
+            });
+        }
+
         console.log(queries);
         gojs_init(queries.schema, queries.relations);
         $scope.status = '';
@@ -326,7 +380,7 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
 
         $http({
             method: "POST",
-            url: "/sql/schema",
+            url: "/sql/" + (project.abstractSchema ? "abstract-schema" : "schema"),
             data: data
         }).then(function successCallback(response) {
             queries.schema = response.data;
@@ -343,15 +397,15 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
     function saveDiagram(nodes) {
         project.nodes = nodes;
         projectService.addProject(project);
-    };
-    
+    }
+
     //Reads the persisted node data and updates the diagram
     function loadDiagram() {
         if (!myDiagram) {
             return;
         }
-        nodes = project.nodes;
-        for (nodeKey in nodes) {
+        var nodes = project.nodes;
+        for (var nodeKey in nodes) {
             var nodeData = myDiagram.model.findNodeDataForKey(nodeKey);
             if (!nodeData) {
                 continue;
@@ -365,12 +419,13 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
             if (nodes[nodeKey].entityVisibility != null) {
                 node.visible = nodes[nodeKey].entityVisibility;
                 if (!node.visible) {
-                    $scope.hiddenNodes.push(node);   
+                    $scope.hiddenNodes.push(node);
                 }
             }
-            
-            if (nodes[nodeKey].attributeVisibility != null) {
-                node.findObject("LIST").visible = nodes[nodeKey].attributeVisibility;
+
+            var list = node.findObject("LIST");
+            if (list && nodes[nodeKey].attributeVisibility != null) {
+                list.visible = nodes[nodeKey].attributeVisibility;
             }
         }
     }

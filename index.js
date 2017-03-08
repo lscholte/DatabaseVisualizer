@@ -13,6 +13,7 @@ var mysqlQueries = require('./mysql-queries.js');
 app.use(express.static('static'));
 
 app.post('/sql/schema', mysqlQueries.getSchemaAction);
+app.post('/sql/abstract-schema', mysqlQueries.getAbstractSchemaAction);
 app.post('/sql/relations', mysqlQueries.getRelationsAction);
 
 // Redirect any other paths to angular

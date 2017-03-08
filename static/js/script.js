@@ -64,6 +64,7 @@ angular.module("test", ["ngCookies", "ngRoute", "ui.bootstrap"])
         $scope.project = {
             name: null,
             showUnrelated: true,
+            abstractSchema: true,
             databaseConnection: {
                 host: null,
                 port: null,
