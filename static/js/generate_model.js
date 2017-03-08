@@ -90,7 +90,7 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
                                 editable: true,
                                 isMultiline: false,
                             },
-                            new go.Binding("text", "title")
+                            new go.Binding("text", "title").makeTwoWay()
                         ),
                         // the collapse/expand button
                         $("PanelExpanderButton", "TABLE_LIST",
@@ -283,7 +283,6 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
                         }
                         else {
                             var tableList = node.findObject("TABLE_LIST");
-
                             nodeDataToSave[nodeData.key] = {
                                 abstractName: nodeData.title,
                                 location: {
@@ -549,8 +548,8 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
             
             var node = myDiagram.findNodeForData(nodeData);
             
-            if (nodes[nodeKey].abstractName != null) {
-                nodeData.title = nodes[nodeKey].abstractName;
+            if (nodes[nodeKey].abstractName != null) {                
+                myDiagram.model.setDataProperty(nodeData, "title", nodes[nodeKey].abstractName);
             }
             
             if (nodes[nodeKey].location != null) {
