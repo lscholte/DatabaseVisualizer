@@ -218,27 +218,79 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
 
         //When diagram is updated, we want node data to be stored in persistent storage
         myDiagram.addModelChangedListener(function(event) {
-            console.log(event.change);
             if (event.isTransactionFinished) {
+
                 var nodeDataToSave = {};
                 var dataArray = myDiagram.model.nodeDataArray;
-                for (var data in dataArray) {
-                    var nodeData = dataArray[data];
-                    var node = myDiagram.findNodeForData(nodeData);
-                    var list = node.findObject("LIST");
+                
+                if (project.abstractSchema) {
+                    var innerNodeData = {};
+                    for (var data in dataArray) {
+                    
+                        var nodeData = dataArray[data];
+                        var node = myDiagram.findNodeForData(nodeData);
+                        
+                        //If this is a node inside an abstract entity
+                        if (nodeData.group) {
+                            var list = node.findObject("LIST");
 
-                    nodeDataToSave[nodeData.key] = {
-                        location: {
-                            x: node.location.x,
-                            y: node.location.y
-                        },
-                        entityVisibility: node.visible,
-                        attributeVisibility: !list ? null : list.visible
-                    };
-
+                            if (!innerNodeData[nodeData.group]) {
+                                innerNodeData[nodeData.group] = {};
+                            }
+                                                        
+                            innerNodeData[nodeData.group][nodeData.key] = {
+                                location: {
+                                    x: node.location.x,
+                                    y: node.location.y
+                                },
+                                entityVisibility: node.visible,
+                                attributeVisibility: !list ? null : list.visible
+                            }
+                        }
+                        else {
+                            
+                            nodeDataToSave[nodeData.key] = {
+                                abstractName: nodeData.title,
+                                location: {
+                                    x: node.location.x,
+                                    y: node.location.y
+                                },
+                                isExpanded: node.isSubGraphExpanded,
+                                innerNodeData: {}
+                            };
+                        }
+                        
+                        
+                    }
+                    
+                    //For each abstract entity, store its inner node data
+                    for (var group in innerNodeData) {
+                        nodeDataToSave[group].innerNodeData = innerNodeData[group];
+                    }
+                    
+                    console.log(nodeDataToSave);
                 }
+                else {
+                    for (var data in dataArray) {
+                        var nodeData = dataArray[data];
+                        var node = myDiagram.findNodeForData(nodeData);
+                        var list = node.findObject("LIST");
 
-                saveDiagram(nodeDataToSave);
+                        nodeDataToSave[nodeData.key] = {
+                            location: {
+                                x: node.location.x,
+                                y: node.location.y
+                            },
+                            entityVisibility: node.visible,
+                            attributeVisibility: !list ? null : list.visible
+                        };
+
+                    }
+                    
+                }
+                
+                saveDiagram(nodeDataToSave, project.abstractSchema);
+
             }
         });
 
@@ -393,17 +445,29 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
         });
     }
 
-    function saveDiagram(nodes) {
-        project.nodes = nodes;
+    function saveDiagram(nodes, isAbstractDiagram) {
+        if (isAbstractDiagram) {
+            project.highLevelNodes = nodes;
+        }
+        else {
+            project.lowLevelNodes = nodes;
+        }
+        
         projectService.addProject(project);
+    }
+    
+    function loadDiagram() {
+        project.abstractSchema ? 
+            loadHighLevelDiagram() : 
+            loadLowLevelDiagram();
     }
 
     //Reads the persisted node data and updates the diagram
-    function loadDiagram() {
+    function loadLowLevelDiagram() {
         if (!myDiagram) {
             return;
         }
-        var nodes = project.nodes;
+        var nodes = project.lowLevelNodes;
         for (var nodeKey in nodes) {
             var nodeData = myDiagram.model.findNodeDataForKey(nodeKey);
             if (!nodeData) {
@@ -425,6 +489,58 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
             var list = node.findObject("LIST");
             if (list && nodes[nodeKey].attributeVisibility != null) {
                 list.visible = nodes[nodeKey].attributeVisibility;
+            }
+        }
+    }
+
+    function loadHighLevelDiagram() {
+        if (!myDiagram) {
+            return;
+        }
+        var nodes = project.highLevelNodes;
+        for (var nodeKey in nodes) {
+            var nodeData = myDiagram.model.findNodeDataForKey(nodeKey);
+            if (!nodeData) {
+                continue;
+            }
+            
+            var node = myDiagram.findNodeForData(nodeData);
+            
+            if (nodes[nodeKey].abstractName != null) {
+                nodeData.title = nodes[nodeKey].abstractName;
+            }
+            
+            if (nodes[nodeKey].location != null) {
+                node.location.x = nodes[nodeKey].location.x;
+                node.location.y = nodes[nodeKey].location.y;
+            }
+
+            if (nodes[nodeKey].isExpanded != null) {
+                node.isSubGraphExpanded = nodes[nodeKey].isExpanded;
+            }
+            
+            var innerNodes = nodes[nodeKey].innerNodeData;
+
+            for (var innerNodeKey in innerNodes) {    
+                var innerNodeData = myDiagram.model.findNodeDataForKey(innerNodeKey);
+                var innerNode = myDiagram.findNodeForData(innerNodeData);
+                                
+                if (innerNodes[innerNodeKey].location != null) {
+                    innerNode.location.x = innerNodes[innerNodeKey].location.x;
+                    innerNode.location.y = innerNodes[innerNodeKey].location.y;
+                }
+
+                if (innerNodes[innerNodeKey].entityVisibility != null) {
+                    innerNode.visible = innerNodes[innerNodeKey].entityVisibility;
+                    if (!innerNode.visible) {
+                        $scope.hiddenNodes.push(innerNode);
+                    }
+                }
+
+                var list = innerNode.findObject("LIST");
+                if (list && innerNodes[innerNodeKey].attributeVisibility != null) {
+                    list.visible = innerNodes[innerNodeKey].attributeVisibility;
+                }
             }
         }
     }

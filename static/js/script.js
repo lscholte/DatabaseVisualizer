@@ -1,4 +1,4 @@
-angular.module("test", ["ngCookies", "ngRoute", "ui.bootstrap"])
+angular.module("test", ["ngRoute", "ui.bootstrap"])
 
     .config(function($routeProvider, $locationProvider) {
 
@@ -18,19 +18,19 @@ angular.module("test", ["ngCookies", "ngRoute", "ui.bootstrap"])
         //Removes # from URLs
         $locationProvider.html5Mode(true);
 
-    }).controller("indexController", function($scope, $cookies) {
+    }).controller("indexController", function($scope, $window) {
 
         $scope.initCookies = function() {
-            if (!$cookies.getObject("projects")) {
+            if (!$window.localStorage["projects"]) {
                 $scope.clearCookies();
             }
         };
 
         $scope.clearCookies = function() {
-            $cookies.putObject("projects", {});
+            $window.localStorage["projects"] = JSON.stringify({});
         };
 
-    }).controller("homeController", function($scope, $cookies, $uibModal, $location, projectService) {
+    }).controller("homeController", function($scope, $window, $uibModal, $location, projectService) {
 
         $scope.projects = projectService.getAllProjects();
 
@@ -59,7 +59,7 @@ angular.module("test", ["ngCookies", "ngRoute", "ui.bootstrap"])
             $location.path("/view");
         };
 
-    }).controller("addProjectController", function($scope, $rootScope, $cookies, $uibModalInstance, projectService) {
+    }).controller("addProjectController", function($scope, $rootScope, $window, $uibModalInstance, projectService) {
 
         $scope.project = {
             name: null,
@@ -122,14 +122,14 @@ angular.module("test", ["ngCookies", "ngRoute", "ui.bootstrap"])
             $uibModalInstance.close("cancel");
         };
 
-    }).service("projectService", function($cookies) {
+    }).service("projectService", function($window) {
 
         var selectedProject = null;
 
         var service = {};
 
         service.getAllProjects = function() {
-            return $cookies.getObject("projects");
+            return JSON.parse($window.localStorage["projects"]);
         };
 
         service.doesProjectExist = function(projectName) {
@@ -143,13 +143,13 @@ angular.module("test", ["ngCookies", "ngRoute", "ui.bootstrap"])
         service.addProject = function(project) {
             var allProjects = service.getAllProjects();
             allProjects[project.name] = project;
-            $cookies.putObject("projects", allProjects);
+            $window.localStorage["projects"] = JSON.stringify(allProjects);
         };
 
         service.removeProject = function(projectName) {
             var allProjects = service.getAllProjects();
             delete allProjects[projectName];
-            $cookies.putObject("projects", allProjects);
+            $window.localStorage["projects"] = JSON.stringify(allProjects);
         };
 
         service.selectProject = function(projectName) {
