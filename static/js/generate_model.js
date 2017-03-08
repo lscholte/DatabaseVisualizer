@@ -178,7 +178,7 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
                     ),
 
                     // the collapse/expand button
-                    $("PanelExpanderButton", "LIST", // the name of the element whose visibility this button toggles
+                    $("PanelExpanderButton", "ATTRIBUTE_LIST", // the name of the element whose visibility this button toggles
                         {
                             row: 0,
                             alignment: go.Spot.TopRight,
@@ -188,7 +188,7 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
 
                     // the list of Panels, each showing an attribute
                     $(go.Panel, "Vertical", {
-                            name: "LIST",
+                            name: "ATTRIBUTE_LIST",
                             row: 1,
                             padding: 3,
                             alignment: go.Spot.TopLeft,
@@ -266,7 +266,7 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
                         
                         //If this is a node inside an abstract entity
                         if (nodeData.group) {
-                            var list = node.findObject("LIST");
+                            var list = node.findObject("ATTRIBUTE_LIST");
 
                             if (!innerNodeData[nodeData.group]) {
                                 innerNodeData[nodeData.group] = {};
@@ -309,7 +309,7 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
                     for (var data in dataArray) {
                         var nodeData = dataArray[data];
                         var node = myDiagram.findNodeForData(nodeData);
-                        var list = node.findObject("LIST");
+                        var list = node.findObject("ATTRIBUTE_LIST");
 
                         nodeDataToSave[nodeData.key] = {
                             location: {
@@ -369,7 +369,7 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
             myDiagram.model.startTransaction("Set Attribute Visibility");
             myDiagram.nodes.each(function(node) {
                 // Nodes
-                var list = node.findObject("LIST");
+                var list = node.findObject("ATTRIBUTE_LIST");
                 if (list)
                     list.visible = visible;
 
@@ -529,7 +529,7 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
                 }
             }
 
-            var list = node.findObject("LIST");
+            var list = node.findObject("ATTRIBUTE_LIST");
             if (list && nodes[nodeKey].attributeVisibility != null) {
                 list.visible = nodes[nodeKey].attributeVisibility;
             }
@@ -592,7 +592,7 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
                     }
                 }
 
-                var list = innerNode.findObject("LIST");
+                var list = innerNode.findObject("ATTRIBUTE_LIST");
                 if (list && innerNodes[innerNodeKey].attributeVisibility != null) {
                     list.visible = innerNodes[innerNodeKey].attributeVisibility;
                 }
