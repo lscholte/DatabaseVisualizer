@@ -69,7 +69,7 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
                     isSubGraphExpanded: false
                 },
                 new go.Binding("name", "key"),
-                //$(go.TextBlock {text: "select and then click to edit",  editable: true, isMultiline: false}),
+                
 
                 $(go.Shape, "RoundedRectangle",  // surrounds everything
                     { parameter1: 10 },
@@ -87,6 +87,8 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
                             {
                                 font: "Bold 12pt Sans-Serif",
                                 margin: new go.Margin(0, 10, 0, 15),
+                                editable: true,
+                                isMultiline: false,
                             },
                             new go.Binding("text", "title")
                         ),
