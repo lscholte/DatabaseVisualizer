@@ -189,6 +189,7 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
 
         //When diagram is updated, we want node data to be stored in persistent storage
         myDiagram.addModelChangedListener(function(event) {
+            console.log(event.change);
             if (event.isTransactionFinished) {
                 var nodeDataToSave = {};
                 var dataArray = myDiagram.model.nodeDataArray;
@@ -246,12 +247,14 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
     $scope.setAllAttributeVisibilty = function(visible) {
         if (myDiagram) {
             var dataArray = myDiagram.model.nodeDataArray;
+            myDiagram.model.startTransaction("Set Attribute Visibility");
             for (data in dataArray) {
                 var nodeData = dataArray[data];
                 var node = myDiagram.findNodeForData(nodeData);
                 console.log(visible);
                 node.findObject("LIST").visible = visible;
             }
+            myDiagram.model.commitTransaction("Set Attribute Visibility");
         }
     }
 
