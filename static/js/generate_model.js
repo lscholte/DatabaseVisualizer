@@ -261,42 +261,17 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
                     var innerNodeData = {};
                     for (var data in dataArray) {
                     
-                        var nodeData = dataArray[data];
-                        var node = myDiagram.findNodeForData(nodeData);
-                        
+                        var nodeData = dataArray[data];                        
                         //If this is a node inside an abstract entity
                         if (nodeData.group) {
-                            var list = node.findObject("ATTRIBUTE_LIST");
-
                             if (!innerNodeData[nodeData.group]) {
                                 innerNodeData[nodeData.group] = {};
                             }
-                                                        
-                            innerNodeData[nodeData.group][nodeData.key] = {
-                                location: {
-                                    x: node.location.x,
-                                    y: node.location.y
-                                },
-                                entityVisibility: node.visible,
-                                attributeVisibility: !list ? null : list.visible
-                            }
+                            storeLowLevelNode(innerNodeData[nodeData.group], nodeData.key);
                         }
                         else {
-                            var tableList = node.findObject("TABLE_LIST");
-                            nodeDataToSave[nodeData.key] = {
-                                abstractName: nodeData.title,
-                                location: {
-                                    x: node.location.x,
-                                    y: node.location.y
-                                },
-                                isExpanded: node.isSubGraphExpanded,
-                                tableListVisible: !tableList ? null : tableList.visible,
-                                entityVisibility: node.visible,
-                                innerNodeData: {}
-                            };
+                            storeHighLevelNode(nodeDataToSave, nodeData.key);
                         }
-                        
-                        
                     }
                     
                     //For each abstract entity, store its inner node data
@@ -307,21 +282,8 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
                 }
                 else {
                     for (var data in dataArray) {
-                        var nodeData = dataArray[data];
-                        var node = myDiagram.findNodeForData(nodeData);
-                        var list = node.findObject("ATTRIBUTE_LIST");
-
-                        nodeDataToSave[nodeData.key] = {
-                            location: {
-                                x: node.location.x,
-                                y: node.location.y
-                            },
-                            entityVisibility: node.visible,
-                            attributeVisibility: !list ? null : list.visible
-                        };
-
+                        storeLowLevelNode(nodeDataToSave, dataArray[data].key);
                     }
-                    
                 }
                 
                 saveDiagram(nodeDataToSave, project.abstractSchema);
@@ -329,6 +291,39 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
             }
         });
 
+    }
+    
+    function storeHighLevelNode(stoedNodes, nodeKey) {
+        var nodeData = myDiagram.model.findNodeDataForKey(nodeKey);
+        var node = myDiagram.findNodeForData(nodeData);
+        var tableList = node.findObject("TABLE_LIST");
+        
+        stoedNodes[nodeData.key] = {
+            abstractName: nodeData.title,
+            location: {
+                x: node.location.x,
+                y: node.location.y
+            },
+            isExpanded: node.isSubGraphExpanded,
+            tableListVisible: !tableList ? null : tableList.visible,
+            entityVisibility: node.visible,
+            innerNodeData: {}
+        };
+    }
+    
+    function storeLowLevelNode(storedNodes, nodeKey) {
+        var nodeData = myDiagram.model.findNodeDataForKey(nodeKey);
+        var node = myDiagram.findNodeForData(nodeData);
+        var list = node.findObject("ATTRIBUTE_LIST");
+
+        storedNodes[nodeData.key] = {
+            location: {
+                x: node.location.x,
+                y: node.location.y
+            },
+            entityVisibility: node.visible,
+            attributeVisibility: !list ? null : list.visible
+        };
     }
 
 
