@@ -504,35 +504,81 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
             loadHighLevelDiagram() : 
             loadLowLevelDiagram();
     }
+    
+    function loadHighLevelNode(storedNodes, nodeKey) {
+            var nodeData = myDiagram.model.findNodeDataForKey(nodeKey);
+            if (!nodeData) {
+                return;
+            }
+            
+            var node = myDiagram.findNodeForData(nodeData);
+            
+            if (storedNodes[nodeKey].abstractName != null) {                
+                myDiagram.model.setDataProperty(nodeData, "title", storedNodes[nodeKey].abstractName);
+            }
+            
+            if (storedNodes[nodeKey].location != null) {
+                node.location.x = storedNodes[nodeKey].location.x;
+                node.location.y = storedNodes[nodeKey].location.y;
+            }
+
+            if (storedNodes[nodeKey].isExpanded != null) {
+                node.isSubGraphExpanded = storedNodes[nodeKey].isExpanded;
+            }
+            
+            var tableList = node.findObject("TABLE_LIST");
+            if (tableList && storedNodes[nodeKey].tableListVisible != null) {
+                tableList.visible = storedNodes[nodeKey].tableListVisible;
+            }
+            
+            if (storedNodes[nodeKey].entityVisibility != null) {
+                node.visible = storedNodes[nodeKey].entityVisibility;
+                if (!node.visible) {
+                    $scope.hiddenNodes.push(node);
+                }
+            }
+            
+            var innerNodes = storedNodes[nodeKey].innerNodeData;
+            for (var innerNodeKey in innerNodes) {    
+                loadLowLevelNode(innerNodes, innerNodeKey);
+            }
+    }
+    
+    function loadLowLevelNode(storedNodes, nodeKey) {
+        var nodeData = myDiagram.model.findNodeDataForKey(nodeKey);
+        if (!nodeData) {
+            return;
+        }
+        
+        var node = myDiagram.findNodeForData(nodeData);
+
+        if (storedNodes[nodeKey].location != null) {
+            node.location.x = storedNodes[nodeKey].location.x;
+            node.location.y = storedNodes[nodeKey].location.y;
+        }
+
+        if (storedNodes[nodeKey].entityVisibility != null) {
+            node.visible = storedNodes[nodeKey].entityVisibility;
+            if (!node.visible) {
+                $scope.hiddenNodes.push(node);
+            }
+        }
+
+        var list = node.findObject("ATTRIBUTE_LIST");
+        if (list && storedNodes[nodeKey].attributeVisibility != null) {
+            list.visible = storedNodes[nodeKey].attributeVisibility;
+        }
+    }
 
     //Reads the persisted node data and updates the diagram
     function loadLowLevelDiagram() {
         if (!myDiagram) {
             return;
         }
+        
         var nodes = project.lowLevelNodes;
         for (var nodeKey in nodes) {
-            var nodeData = myDiagram.model.findNodeDataForKey(nodeKey);
-            if (!nodeData) {
-                continue;
-            }
-            var node = myDiagram.findNodeForData(nodeData);
-            if (nodes[nodeKey].location != null) {
-                node.location.x = nodes[nodeKey].location.x;
-                node.location.y = nodes[nodeKey].location.y;
-            }
-
-            if (nodes[nodeKey].entityVisibility != null) {
-                node.visible = nodes[nodeKey].entityVisibility;
-                if (!node.visible) {
-                    $scope.hiddenNodes.push(node);
-                }
-            }
-
-            var list = node.findObject("ATTRIBUTE_LIST");
-            if (list && nodes[nodeKey].attributeVisibility != null) {
-                list.visible = nodes[nodeKey].attributeVisibility;
-            }
+            loadLowLevelNode(nodes, nodeKey);
         }
     }
 
@@ -540,63 +586,10 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
         if (!myDiagram) {
             return;
         }
+        
         var nodes = project.highLevelNodes;
         for (var nodeKey in nodes) {
-            var nodeData = myDiagram.model.findNodeDataForKey(nodeKey);
-            if (!nodeData) {
-                continue;
-            }
-            
-            var node = myDiagram.findNodeForData(nodeData);
-            
-            if (nodes[nodeKey].abstractName != null) {                
-                myDiagram.model.setDataProperty(nodeData, "title", nodes[nodeKey].abstractName);
-            }
-            
-            if (nodes[nodeKey].location != null) {
-                node.location.x = nodes[nodeKey].location.x;
-                node.location.y = nodes[nodeKey].location.y;
-            }
-
-            if (nodes[nodeKey].isExpanded != null) {
-                node.isSubGraphExpanded = nodes[nodeKey].isExpanded;
-            }
-            
-            var tableList = node.findObject("TABLE_LIST");
-            if (tableList && nodes[nodeKey].tableListVisible != null) {
-                tableList.visible = nodes[nodeKey].tableListVisible;
-            }
-            
-            if (nodes[nodeKey].entityVisibility != null) {
-                node.visible = nodes[nodeKey].entityVisibility;
-                if (!node.visible) {
-                    $scope.hiddenNodes.push(node);
-                }
-            }
-            
-            var innerNodes = nodes[nodeKey].innerNodeData;
-
-            for (var innerNodeKey in innerNodes) {    
-                var innerNodeData = myDiagram.model.findNodeDataForKey(innerNodeKey);
-                var innerNode = myDiagram.findNodeForData(innerNodeData);
-                                
-                if (innerNodes[innerNodeKey].location != null) {
-                    innerNode.location.x = innerNodes[innerNodeKey].location.x;
-                    innerNode.location.y = innerNodes[innerNodeKey].location.y;
-                }
-
-                if (innerNodes[innerNodeKey].entityVisibility != null) {
-                    innerNode.visible = innerNodes[innerNodeKey].entityVisibility;
-                    if (!innerNode.visible) {
-                        $scope.hiddenNodes.push(innerNode);
-                    }
-                }
-
-                var list = innerNode.findObject("ATTRIBUTE_LIST");
-                if (list && innerNodes[innerNodeKey].attributeVisibility != null) {
-                    list.visible = innerNodes[innerNodeKey].attributeVisibility;
-                }
-            }
+            loadHighLevelNode(nodes, nodeKey);
         }
     }
 
