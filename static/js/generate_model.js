@@ -242,6 +242,18 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
             myDiagram.layout = new go.TreeLayout;
         }
     }
+        
+    $scope.setAllAttributeVisibilty = function(visible) {
+        if (myDiagram) {
+            var dataArray = myDiagram.model.nodeDataArray;
+            for (data in dataArray) {
+                var nodeData = dataArray[data];
+                var node = myDiagram.findNodeForData(nodeData);
+                console.log(visible);
+                node.findObject("LIST").visible = visible;
+            }
+        }
+    }
 
     $scope.PrintImage = function() {
         if (myDiagram) {
@@ -329,7 +341,6 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
         project.nodes = nodes;
         projectService.addProject(project);
     };
-    
     
     //Reads the persisted node data and updates the diagram
     function loadDiagram() {
