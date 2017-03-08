@@ -6,7 +6,7 @@
     <button class="btn btn-default" ng-click="CLayout()">Circular Layout</button>
     <button class="btn btn-default" ng-click="LDLayout()">Layered Digraph Layout</button>
     <button class="btn btn-default" ng-click="TLayout()">Tree Layout</button>
-    
+
     <h4>Attributes</h4>
     <button class="btn btn-default" ng-click="setAllAttributeVisibilty(false)">Hide Attributes</button>
     <button class="btn btn-default" ng-click="setAllAttributeVisibilty(true)">Show Attributes</button>
@@ -24,8 +24,8 @@
         <div ng-if="hiddenNodes.length" class="hiddenNodes">
             <h4>Hidden Nodes:</h4>
             <div class="hiddenNodeScroll">
-                <div ng-repeat="node in hiddenNodes | orderBy: 'data.key'" class="hiddenNode">
-                    <div class="hiddenNodeText" title="{{ node.data.key }}">{{ node.data.key }}</div>
+                <div ng-repeat="node in hiddenNodes | orderBy: ['data.title', 'data.key']" class="hiddenNode">
+                    <div class="hiddenNodeText" title="{{ node.data.title ? node.data.title : node.data.key }}">{{ node.data.title ? node.data.title : node.data.key }}</div>
                     <button class="btn btn-sm showButton" ng-click="showNode(node)">Show</button>
                 </div>
             </div>
