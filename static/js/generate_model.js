@@ -75,9 +75,39 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
                 ),
                 $(go.Panel, "Vertical",  // position header above the subgraph
                     $(go.Panel, "Horizontal",
-                        $("SubGraphExpanderButton", { margin: new go.Margin(0, 3, 5, 0) }),
-                        $(go.TextBlock, { font: "Bold 12pt Sans-Serif" }, new go.Binding("text", "title"))
+                        { height: 25 },
+                        $("SubGraphExpanderButton",
+                            {
+                                margin: new go.Margin(0, 0, 0, 30),
+                            }
+                        ),
+                        $(go.TextBlock,
+                            {
+                                font: "Bold 12pt Sans-Serif",
+                                margin: new go.Margin(0, 10, 0, 15),
+                            },
+                            new go.Binding("text", "title")
+                        ),
+                        // the collapse/expand button
+                        $("PanelExpanderButton", "TABLE_LIST",
+                            {
+                                margin: new go.Margin(0, 5, 0, 0),
+                            },
+                            new go.Binding("visible", "isSubGraphExpanded", function (val) { return !val; }).ofObject()
+                        ),
+                        $("Button",
+                            {
+                                margin: new go.Margin(0, 15, 0, 0),
+                                height: 13,
+                                click: hideNode,
+                                "ButtonBorder.fill": "transparent",
+                                "ButtonBorder.stroke": "transparent",
+                            },
+                            $(go.Shape, "ThinX", {width: 8, height: 8, margin: 0})
+                        )
                     ),
+
+
                     $(go.Placeholder, { padding: 5 }),
                     $(go.Panel, "Vertical", {
                             name: "TABLE_LIST",
@@ -331,8 +361,14 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
             //var dataArray = myDiagram.model.nodeDataArray;
             myDiagram.model.startTransaction("Set Attribute Visibility");
             myDiagram.nodes.each(function(node) {
+                // Nodes
                 var list = node.findObject("LIST");
                 if (list)
+                    list.visible = visible;
+
+                // Groups (don't apply to expanded groups, which should always have attributes hidden)
+                list = node.findObject("TABLE_LIST");
+                if (list && !node.isSubGraphExpanded)
                     list.visible = visible;
             });
             myDiagram.model.commitTransaction("Set Attribute Visibility");
