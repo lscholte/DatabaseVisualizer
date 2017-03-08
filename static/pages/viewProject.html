@@ -1,28 +1,33 @@
 <div class="view-proj">
-    <h4>Different Layouts</h4>
+    <div class="row">
+        <div class="col-xs-4 col-md-5">
+            <h4>Graph Layout</h4>
 
-    <button class="btn btn-default" ng-click="FDLayout()">Force Directed Layout</button>
-    <button class="btn btn-default" ng-click="GLayout()">Grid Layout</button>
-    <button class="btn btn-default" ng-click="CLayout()">Circular Layout</button>
-    <button class="btn btn-default" ng-click="LDLayout()">Layered Digraph Layout</button>
-    <button class="btn btn-default" ng-click="TLayout()">Tree Layout</button>
+            <button class="btn btn-default optionButton" ng-click="FDLayout()">Force Directed Layout</button>
+            <button class="btn btn-default optionButton" ng-click="GLayout()">Grid Layout</button>
+            <button class="btn btn-default optionButton" ng-click="TLayout()">Tree Layout</button>
+            <button class="btn btn-default optionButton" ng-click="LDLayout()">Layered Digraph Layout</button>
+            <button class="btn btn-default optionButton" ng-click="CLayout()">Circular Layout</button>
+        </div>
+        <div class="col-xs-3 col-md-2">
+            <h4>Attributes</h4>
 
-    <h4>Attributes</h4>
+            <button class="btn btn-default optionButton" ng-click="setAllAttributeVisibilty(false)">Hide Attributes</button>
+            <button class="btn btn-default optionButton" ng-click="setAllAttributeVisibilty(true)">Show Attributes</button>
+        </div>
+        <div class="col-xs-3 col-md-3">
+            <h4>Group Entities into Abstract Relations</h4>
+            <!-- Currently this does nothign besides being a button which may be used later-->
 
-    <button class="btn btn-default" ng-click="setAllAttributeVisibilty(false)">Hide Attributes</button>
-    <button class="btn btn-default" ng-click="setAllAttributeVisibilty(true)">Show Attributes</button>
- 
-    <h4>Viewing Of Abstract Relations In Groups</h4>
-    <!-- Currently this does nothign besides being a button which may be used later-->
+            <button class="btn btn-default optionButton" ng-click="">Hide Relationships</button>
+            <button class="btn btn-default optionButton" ng-click="">Show Relationships</button>
+        </div>
+        <div class="col-xs-2 col-md-2">
+            <h4>Export Image</h4>
 
-    <button class="btn btn-default" ng-click="">Hide Relationships</button>
-    <button class="btn btn-default" ng-click="">Show Relationships</button>
-
-    <h4>Export</h4>
-
-    <button class="btn btn-default" ng-click="PrintImage()">Export Image</button>
-
-    <div ></div>
+            <button class="btn btn-default optionButton" ng-click="PrintImage()">Export Image</button>
+        </div>
+    </div>
 
     <h3>Entity Relationship Diagram</h3>
     <span ng-bind-html="status"></span>

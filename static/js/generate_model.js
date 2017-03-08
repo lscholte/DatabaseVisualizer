@@ -1,5 +1,16 @@
 angular.module("test").controller("viewProjectController", function($scope, $rootScope, $http, $sce, projectService) {
 
+    // Make diagram fill screen with no scroll
+    var $diagramDiv = $('.diagramDiv');
+    var resizeHandler = function() {
+        var y = $diagramDiv.offset().top - $diagramDiv.scrollTop();
+        var maxY = window.innerHeight - 15;
+        $diagramDiv.height(maxY - y);
+    };
+    resizeHandler(); // Do it once on load
+
+    $(window).on('resize', resizeHandler); // And then again whenever window size changes
+
     var project = projectService.getSelectedProject();
 
     $scope.status = $sce.trustAsHtml("<h2>(Loading data, please wait...)</h2>");
@@ -69,7 +80,7 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
                     isSubGraphExpanded: false
                 },
                 new go.Binding("name", "key"),
-                
+
 
                 $(go.Shape, "RoundedRectangle",  // surrounds everything
                     { parameter1: 10 },
@@ -256,12 +267,12 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
 
                 var nodeDataToSave = {};
                 var dataArray = myDiagram.model.nodeDataArray;
-                
+
                 if (project.abstractSchema) {
                     var innerNodeData = {};
                     for (var data in dataArray) {
-                    
-                        var nodeData = dataArray[data];                        
+
+                        var nodeData = dataArray[data];
                         //If this is a node inside an abstract entity
                         if (nodeData.group) {
                             if (!innerNodeData[nodeData.group]) {
@@ -273,31 +284,31 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
                             storeHighLevelNode(nodeDataToSave, nodeData.key);
                         }
                     }
-                    
+
                     //For each abstract entity, store its inner node data
                     for (var group in innerNodeData) {
                         nodeDataToSave[group].innerNodeData = innerNodeData[group];
                     }
-                    
+
                 }
                 else {
                     for (var data in dataArray) {
                         storeLowLevelNode(nodeDataToSave, dataArray[data].key);
                     }
                 }
-                
+
                 saveDiagram(nodeDataToSave, project.abstractSchema);
 
             }
         });
 
     }
-    
+
     function storeHighLevelNode(stoedNodes, nodeKey) {
         var nodeData = myDiagram.model.findNodeDataForKey(nodeKey);
         var node = myDiagram.findNodeForData(nodeData);
         var tableList = node.findObject("TABLE_LIST");
-        
+
         stoedNodes[nodeData.key] = {
             abstractName: nodeData.title,
             location: {
@@ -310,7 +321,7 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
             innerNodeData: {}
         };
     }
-    
+
     function storeLowLevelNode(storedNodes, nodeKey) {
         var nodeData = myDiagram.model.findNodeDataForKey(nodeKey);
         var node = myDiagram.findNodeForData(nodeData);
@@ -490,28 +501,28 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
         else {
             project.lowLevelNodes = nodes;
         }
-        
+
         projectService.addProject(project);
     }
-    
+
     function loadDiagram() {
-        project.abstractSchema ? 
-            loadHighLevelDiagram() : 
+        project.abstractSchema ?
+            loadHighLevelDiagram() :
             loadLowLevelDiagram();
     }
-    
+
     function loadHighLevelNode(storedNodes, nodeKey) {
             var nodeData = myDiagram.model.findNodeDataForKey(nodeKey);
             if (!nodeData) {
                 return;
             }
-            
+
             var node = myDiagram.findNodeForData(nodeData);
-            
-            if (storedNodes[nodeKey].abstractName != null) {                
+
+            if (storedNodes[nodeKey].abstractName != null) {
                 myDiagram.model.setDataProperty(nodeData, "title", storedNodes[nodeKey].abstractName);
             }
-            
+
             if (storedNodes[nodeKey].location != null) {
                 node.location.x = storedNodes[nodeKey].location.x;
                 node.location.y = storedNodes[nodeKey].location.y;
@@ -520,31 +531,31 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
             if (storedNodes[nodeKey].isExpanded != null) {
                 node.isSubGraphExpanded = storedNodes[nodeKey].isExpanded;
             }
-            
+
             var tableList = node.findObject("TABLE_LIST");
             if (tableList && storedNodes[nodeKey].tableListVisible != null) {
                 tableList.visible = storedNodes[nodeKey].tableListVisible;
             }
-            
+
             if (storedNodes[nodeKey].entityVisibility != null) {
                 node.visible = storedNodes[nodeKey].entityVisibility;
                 if (!node.visible) {
                     $scope.hiddenNodes.push(node);
                 }
             }
-            
+
             var innerNodes = storedNodes[nodeKey].innerNodeData;
-            for (var innerNodeKey in innerNodes) {    
+            for (var innerNodeKey in innerNodes) {
                 loadLowLevelNode(innerNodes, innerNodeKey);
             }
     }
-    
+
     function loadLowLevelNode(storedNodes, nodeKey) {
         var nodeData = myDiagram.model.findNodeDataForKey(nodeKey);
         if (!nodeData) {
             return;
         }
-        
+
         var node = myDiagram.findNodeForData(nodeData);
 
         if (storedNodes[nodeKey].location != null) {
@@ -570,7 +581,7 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
         if (!myDiagram) {
             return;
         }
-        
+
         var nodes = project.lowLevelNodes;
         for (var nodeKey in nodes) {
             loadLowLevelNode(nodes, nodeKey);
@@ -581,7 +592,7 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
         if (!myDiagram) {
             return;
         }
-        
+
         var nodes = project.highLevelNodes;
         for (var nodeKey in nodes) {
             loadHighLevelNode(nodes, nodeKey);
