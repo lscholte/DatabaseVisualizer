@@ -69,6 +69,8 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
                     isSubGraphExpanded: false
                 },
                 new go.Binding("name", "key"),
+                //$(go.TextBlock {text: "select and then click to edit",  editable: true, isMultiline: false}),
+
                 $(go.Shape, "RoundedRectangle",  // surrounds everything
                     { parameter1: 10 },
                     new go.Binding("fill", "isRelation", function(val) {return val ? "LightSteelBlue" : "lightgray"})
@@ -327,6 +329,8 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
 
     }
 
+
+    //The layouts work for both when in relationships and without relationships
     $scope.FDLayout = function() {
         if (myDiagram) {
             myDiagram.layout = new go.ForceDirectedLayout();
