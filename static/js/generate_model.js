@@ -278,7 +278,8 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
                             }
                         }
                         else {
-                            
+                            var tableList = node.findObject("TABLE_LIST");
+
                             nodeDataToSave[nodeData.key] = {
                                 abstractName: nodeData.title,
                                 location: {
@@ -286,6 +287,7 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
                                     y: node.location.y
                                 },
                                 isExpanded: node.isSubGraphExpanded,
+                                tableListVisible: !tableList ? null : tableList.visible,
                                 innerNodeData: {}
                             };
                         }
@@ -298,7 +300,6 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
                         nodeDataToSave[group].innerNodeData = innerNodeData[group];
                     }
                     
-                    console.log(nodeDataToSave);
                 }
                 else {
                     for (var data in dataArray) {
@@ -553,6 +554,11 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
 
             if (nodes[nodeKey].isExpanded != null) {
                 node.isSubGraphExpanded = nodes[nodeKey].isExpanded;
+            }
+            
+            var tableList = node.findObject("TABLE_LIST");
+            if (tableList && nodes[nodeKey].tableListVisible != null) {
+                tableList.visible = nodes[nodeKey].tableListVisible;
             }
             
             var innerNodes = nodes[nodeKey].innerNodeData;
