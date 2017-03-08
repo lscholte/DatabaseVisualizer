@@ -291,6 +291,7 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
                                 },
                                 isExpanded: node.isSubGraphExpanded,
                                 tableListVisible: !tableList ? null : tableList.visible,
+                                entityVisibility: node.visible,
                                 innerNodeData: {}
                             };
                         }
@@ -564,6 +565,13 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
             var tableList = node.findObject("TABLE_LIST");
             if (tableList && nodes[nodeKey].tableListVisible != null) {
                 tableList.visible = nodes[nodeKey].tableListVisible;
+            }
+            
+            if (nodes[nodeKey].entityVisibility != null) {
+                node.visible = nodes[nodeKey].entityVisibility;
+                if (!node.visible) {
+                    $scope.hiddenNodes.push(node);
+                }
             }
             
             var innerNodes = nodes[nodeKey].innerNodeData;
