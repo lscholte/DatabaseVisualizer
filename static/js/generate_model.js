@@ -1,4 +1,4 @@
-angular.module("test").controller("viewProjectController", function($scope, $rootScope, $http, $sce, projectService) {
+angular.module("test").controller("viewProjectController", function($scope, $rootScope, $http, $sce, $route, projectService) {
 
     // Make diagram fill screen with no scroll
     var $diagramDiv = $('.diagramDiv');
@@ -385,6 +385,14 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
                     list.visible = visible;
             });
             myDiagram.model.commitTransaction("Set Attribute Visibility");
+        }
+    };
+
+    $scope.setAbstractView = function (useAbstract) {
+        if (useAbstract !== project.abstractSchema) {
+            project.abstractSchema = useAbstract;
+            projectService.addProject(project);
+            $route.reload();
         }
     };
 
