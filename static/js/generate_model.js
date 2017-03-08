@@ -309,8 +309,14 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
             //var dataArray = myDiagram.model.nodeDataArray;
             myDiagram.model.startTransaction("Set Attribute Visibility");
             myDiagram.nodes.each(function(node) {
+                // Nodes
                 var list = node.findObject("LIST");
                 if (list)
+                    list.visible = visible;
+
+                // Groups (don't apply to expanded groups, which should always have attributes hidden)
+                list = node.findObject("TABLE_LIST");
+                if (list && !node.isSubGraphExpanded)
                     list.visible = visible;
             });
             myDiagram.model.commitTransaction("Set Attribute Visibility");
