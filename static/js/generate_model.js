@@ -337,6 +337,11 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
         };
     }
 
+    $scope.toggleSettings = function() {
+        $('.settings').slideToggle(function () {
+            resizeHandler();
+        });
+    };
 
     //The layouts work for both when in relationships and without relationships
     $scope.FDLayout = function() {

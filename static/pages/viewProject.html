@@ -1,5 +1,13 @@
 <div class="view-proj">
     <div class="row">
+        <div class="col-xs-8">
+            <h3>Entity Relationship Diagram</h3>
+        </div>
+        <div class="col-xs-4">
+            <button class="btn btn-primary settingsButton" ng-click="toggleSettings()">Diagram Settings</button>
+        </div>
+    </div>
+    <div class="row settings">
         <div class="col-xs-4 col-md-5">
             <h4>Graph Layout</h4>
 
@@ -28,8 +36,6 @@
             <button class="btn btn-default optionButton" ng-click="PrintImage()">Export Image</button>
         </div>
     </div>
-
-    <h3>Entity Relationship Diagram</h3>
     <span ng-bind-html="status"></span>
     <div class="diagramDiv">
         <div id="myDiagramDiv"></div>

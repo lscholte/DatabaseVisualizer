@@ -26,7 +26,7 @@
 
 .header-spacer {
     width: 100%;
-    height: 180px;
+    height: 150px;
 }
 
 .view-proj {
@@ -97,4 +97,17 @@
 
 .optionButton {
     margin-bottom: 3px;
+}
+
+.settingsButton {
+    margin: 15px 0 3px auto;
+    display: block;
+}
+
+.settings {
+    display: none;
+    border-radius: 5px;
+    background: #DFDFDF;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
 }
