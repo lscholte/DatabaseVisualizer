@@ -11,7 +11,8 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
 
     $(window).on('resize', resizeHandler); // And then again whenever window size changes
 
-    var project = projectService.getSelectedProject();
+    $scope.project = projectService.getSelectedProject();
+    var project = $scope.project; //For convenience
 
     $scope.status = $sce.trustAsHtml("<h2>(Loading data, please wait...)</h2>");
     $scope.hiddenNodes = [];
