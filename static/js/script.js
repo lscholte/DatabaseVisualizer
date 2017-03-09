@@ -1,6 +1,4 @@
-//TODO: Consider separating the controllers and services into separate files.
-//For now I piled it all into this file because it was easier that way to start
-angular.module("test", ["ngCookies", "ngRoute", "ui.bootstrap"])
+angular.module("test", ["ngRoute", "ui.bootstrap"])
 
     .config(function($routeProvider, $locationProvider) {
 
@@ -20,19 +18,19 @@ angular.module("test", ["ngCookies", "ngRoute", "ui.bootstrap"])
         //Removes # from URLs
         $locationProvider.html5Mode(true);
 
-    }).controller("indexController", function($scope, $cookies) {
+    }).controller("indexController", function($scope, $window) {
 
         $scope.initCookies = function() {
-            if (!$cookies.getObject("projects")) {
+            if (!$window.localStorage["projects"]) {
                 $scope.clearCookies();
             }
         };
 
         $scope.clearCookies = function() {
-            $cookies.putObject("projects", {});
+            $window.localStorage["projects"] = JSON.stringify({});
         };
 
-    }).controller("homeController", function($scope, $cookies, $uibModal, $location, projectService) {
+    }).controller("homeController", function($scope, $window, $uibModal, $location, projectService) {
 
         $scope.projects = projectService.getAllProjects();
 
@@ -61,11 +59,12 @@ angular.module("test", ["ngCookies", "ngRoute", "ui.bootstrap"])
             $location.path("/view");
         };
 
-    }).controller("addProjectController", function($scope, $rootScope, $cookies, $uibModalInstance, projectService) {
+    }).controller("addProjectController", function($scope, $rootScope, $window, $uibModalInstance, projectService) {
 
         $scope.project = {
             name: null,
             showUnrelated: true,
+            abstractSchema: true,
             databaseConnection: {
                 host: null,
                 port: null,
@@ -123,80 +122,14 @@ angular.module("test", ["ngCookies", "ngRoute", "ui.bootstrap"])
             $uibModalInstance.close("cancel");
         };
 
-    }).controller("viewProjectController", function($scope, $rootScope, $http, $sce, projectService) {
-
-        var project = projectService.getSelectedProject();
-
-        $scope.status = $sce.trustAsHtml("<h2>(Loading data, please wait...)</h2>");
-
-        var queries = {
-            schema: null,
-            relations: null
-        };
-
-        function finishedQueries() {
-            console.log(queries);
-            gojs_init(queries.schema, queries.relations);
-            $scope.status = '';
-        }
-
-        $http({
-            method: 'POST',
-            url: '/sql/relations',
-            data: project.databaseConnection
-        }).then(function successCallback(response) {
-            queries.relations = response.data;
-
-            // If we are limiting to only related tables, create an array of tables that have relations and get schema
-            if (!project.showUnrelated) {
-                var tables = {};
-                response.data.forEach(function(rel) {
-                    tables[rel.from] = null;
-                    tables[rel.to] = null;
-                });
-                getSchema(Object.keys(tables));
-            }
-            // Otherwise we check if we have already gotten schema and then run the finishedQueries code if we have
-            else if (queries.schema !== null) {
-                finishedQueries();
-            }
-        }, function errorCallback(response) {
-            $scope.status = $sce.trustAsHtml('<h2 style="color:red">Error loading data! ' + (response.data ? '(' + response.data.message + ')' : '') + '</h2>');
-        });
-
-        // Depending on whether or not we want to limit to only related tables, we may need to wait for relations before getting schema.
-        function getSchema(limitTables) {
-            var data = project.databaseConnection;
-            data.limitTables = limitTables;
-
-            $http({
-                method: 'POST',
-                url: '/sql/schema',
-                data: data
-            }).then(function successCallback(response) {
-                queries.schema = response.data;
-
-                // Check if we have already gotten relations, and if so, run fishedQueries code
-                if (queries.relations !== null) {
-                    finishedQueries();
-                }
-            }, function errorCallback(response) {
-                $scope.status = $sce.trustAsHtml('<h2 style="color:red">Error loading data! ' + (response.data ? '(' + response.data.message + ')' : '') + '</h2>');
-            });
-        }
-
-        // If we aren't limiting our results, then we can go ahead and get schema now
-        if (project.showUnrelated)
-            getSchema(null);
-
-    }).service("projectService", function($cookies) {
+    }).service("projectService", function($window) {
 
         var selectedProject = null;
 
         var service = {};
 
         service.getAllProjects = function() {
-            return $cookies.getObject("projects");
+            return JSON.parse($window.localStorage["projects"]);
         };
 
         service.doesProjectExist = function(projectName) {
@@ -210,13 +143,13 @@ angular.module("test", ["ngCookies", "ngRoute", "ui.bootstrap"])
         service.addProject = function(project) {
             var allProjects = service.getAllProjects();
             allProjects[project.name] = project;
-            $cookies.putObject("projects", allProjects);
+            $window.localStorage["projects"] = JSON.stringify(allProjects);
         };
 
         service.removeProject = function(projectName) {
             var allProjects = service.getAllProjects();
             delete allProjects[projectName];
-            $cookies.putObject("projects", allProjects);
+            $window.localStorage["projects"] = JSON.stringify(allProjects);
         };
 
         service.selectProject = function(projectName) {
