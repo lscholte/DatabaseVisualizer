@@ -202,7 +202,7 @@ function group(rels) {
 
     // Now we will build up the variables to be friendly for gojs and return
     let abstractEntities = cluster.slice(0, nes + 1);
-    let abstractRelations = cluster.slice(nas);
+    let abstractRelations = cluster.slice(nes + 1);
 
     // Start with schema. Keys for abstract entities/relations start with ~ to avoid overlapping with table keys
     let schema = [];
