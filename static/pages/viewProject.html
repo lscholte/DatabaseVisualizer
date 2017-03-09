@@ -24,11 +24,10 @@
             <button class="btn btn-default optionButton" ng-click="setAllAttributeVisibilty(true)">Show Attributes</button>
         </div>
         <div class="col-xs-3 col-md-3">
-            <h4>Group Entities into Abstract Relations</h4>
-            <!-- Currently this does nothign besides being a button which may be used later-->
-
-            <button class="btn btn-default optionButton" ng-click="setAbstractView(false)">Hide Relationships</button>
-            <button class="btn btn-default optionButton" ng-click="setAbstractView(true)">Show Relationships</button>
+            <h4>Diagram Type</h4>
+            <button class="btn btn-default optionButton" ng-click="setAbstractView(!project.abstractSchema)">
+                    {{ project.abstractSchema ? "Show Entire Diagram" : "Show Abstract Diagram" }}
+            </button>
         </div>
         <div class="col-xs-2 col-md-2">
             <h4>Export Image</h4>
