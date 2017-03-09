@@ -22,15 +22,18 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
     function gojs_init(schema, relations) {
         var $ = go.GraphObject.make; // for conciseness in defining templates
 
-        myDiagram =
-            $(go.Diagram, "myDiagramDiv", // must name or refer to the DIV HTML element
-                {
-                    initialContentAlignment: go.Spot.Center,
-                    allowDelete: false,
-                    allowCopy: false,
-                    "undoManager.isEnabled": true
-                }
-            );
+        if (myDiagram) {
+            myDiagram.div = null;
+        }
+        
+        myDiagram = $(go.Diagram, "myDiagramDiv", // must name or refer to the DIV HTML element
+            {
+                initialContentAlignment: go.Spot.Center,
+                allowDelete: false,
+                allowCopy: false,
+                "undoManager.isEnabled": true
+            }
+        );
 
         // Define brushes for nodes (in object for easy mapping from sql json data)
         var brushes = {
@@ -81,7 +84,6 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
                     isSubGraphExpanded: false
                 },
                 new go.Binding("name", "key"),
-
 
                 $(go.Shape, "RoundedRectangle",  // surrounds everything
                     { parameter1: 10 },
@@ -259,11 +261,16 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
             }
         });
 
-        myDiagram.model = new go.GraphLinksModel(schema, relations);
+        myDiagram.model = new go.GraphLinksModel(schema, relations);       
 
+        //When diagram is updated, we want node data to be stored in persistent storage.
+        //First remove the listener in case it already exists
+        myDiagram.removeModelChangedListener(modelChangedListener);
+        myDiagram.addModelChangedListener(modelChangedListener);
 
-        //When diagram is updated, we want node data to be stored in persistent storage
-        myDiagram.addModelChangedListener(function(event) {
+    }
+    
+    function modelChangedListener(event) {
             if (event.isTransactionFinished) {
 
                 var nodeDataToSave = {};
@@ -301,9 +308,7 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
                 saveDiagram(nodeDataToSave, project.abstractSchema);
 
             }
-        });
-
-    }
+        }
 
     function storeHighLevelNode(stoedNodes, nodeKey) {
         var nodeData = myDiagram.model.findNodeDataForKey(nodeKey);
@@ -320,7 +325,7 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
             tableListVisible: !tableList ? null : tableList.visible,
             entityVisibility: node.visible,
             innerNodeData: {}
-        };
+        };        
     }
 
     function storeLowLevelNode(storedNodes, nodeKey) {
@@ -398,7 +403,7 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
         if (useAbstract !== project.abstractSchema) {
             project.abstractSchema = useAbstract;
             projectService.addProject(project);
-            $route.reload();
+            getSchemaAndRelations();
         }
     };
 
@@ -434,7 +439,7 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
 
     function finishedQueries() {
         if (project.abstractSchema) {
-            // The schema element will actually have schema and relations. We want to merge the relations into ours
+            // The schema element will actually have schema and relations. We want to merge the relations into ours            
             queries.relations = queries.schema.relations.concat(queries.relations);
             queries.schema = queries.schema.schema;
 
@@ -462,31 +467,39 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
         $scope.status = '';
         loadDiagram();
     }
+    
+    function getSchemaAndRelations() {
+        queries.relations = queries.schema = null;
+        $http({
+            method: "POST",
+            url: "/sql/relations",
+            data: project.databaseConnection
+        }).then(function successCallback(response) {
+            queries.relations = response.data;
 
-    $http({
-        method: "POST",
-        url: "/sql/relations",
-        data: project.databaseConnection
-    }).then(function successCallback(response) {
-        queries.relations = response.data;
+            // If we are limiting to only related tables, create an array of tables that have relations and get schema
+            if (!project.showUnrelated) {
+                var tables = {};
+                response.data.forEach(function(rel) {
+                    tables[rel.from] = null;
+                    tables[rel.to] = null;
+                });
+                getSchema(Object.keys(tables));
+            }
+            // Otherwise we check if we have already gotten schema and then run the finishedQueries code if we have
+            else if (queries.schema !== null) {
+                finishedQueries();
+            }
+        }, function errorCallback(response) {
+            $scope.status = $sce.trustAsHtml("<h2 style='color:red'>Error loading data! " + (response.data ? "(" + response.data.message + ")" : "") + "</h2>");
+        });
 
-        // If we are limiting to only related tables, create an array of tables that have relations and get schema
-        if (!project.showUnrelated) {
-            var tables = {};
-            response.data.forEach(function(rel) {
-                tables[rel.from] = null;
-                tables[rel.to] = null;
-            });
-            getSchema(Object.keys(tables));
+        // If we aren't limiting our results, then we can go ahead and get schema now
+        if (project.showUnrelated) {
+            getSchema(null);
         }
-        // Otherwise we check if we have already gotten schema and then run the finishedQueries code if we have
-        else if (queries.schema !== null) {
-            finishedQueries();
-        }
-    }, function errorCallback(response) {
-        $scope.status = $sce.trustAsHtml("<h2 style='color:red'>Error loading data! " + (response.data ? "(" + response.data.message + ")" : "") + "</h2>");
-    });
-
+    }
+    
     // Depending on whether or not we want to limit to only related tables, we may need to wait for relations before getting schema.
     function getSchema(limitTables) {
         var data = project.databaseConnection;
@@ -522,7 +535,7 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
     function loadDiagram() {
         project.abstractSchema ?
             loadHighLevelDiagram() :
-            loadLowLevelDiagram();
+            loadLowLevelDiagram();        
     }
 
     function loadHighLevelNode(storedNodes, nodeKey) {
@@ -541,7 +554,7 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
                 node.location.x = storedNodes[nodeKey].location.x;
                 node.location.y = storedNodes[nodeKey].location.y;
             }
-
+        
             if (storedNodes[nodeKey].isExpanded != null) {
                 node.isSubGraphExpanded = storedNodes[nodeKey].isExpanded;
             }
@@ -613,10 +626,7 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
         }
     }
 
-    // If we aren't limiting our results, then we can go ahead and get schema now
-    if (project.showUnrelated) {
-        getSchema(null);
-    }
+    getSchemaAndRelations();
 
 });
 
