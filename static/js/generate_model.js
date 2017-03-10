@@ -15,11 +15,12 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
     var project = $scope.project; //For convenience
 
     $scope.status = $sce.trustAsHtml("<h2>(Loading data, please wait...)</h2>");
-    $scope.hiddenNodes = [];
 
     var myDiagram;
 
     function gojs_init(schema, relations) {
+        $scope.hiddenNodes = [];
+        
         var $ = go.GraphObject.make; // for conciseness in defining templates
 
         if (myDiagram) {
@@ -554,7 +555,7 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
                 node.location.x = storedNodes[nodeKey].location.x;
                 node.location.y = storedNodes[nodeKey].location.y;
             }
-        
+                
             if (storedNodes[nodeKey].isExpanded != null) {
                 node.isSubGraphExpanded = storedNodes[nodeKey].isExpanded;
             }
