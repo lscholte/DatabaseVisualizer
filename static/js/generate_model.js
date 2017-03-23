@@ -407,6 +407,14 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
             getSchemaAndRelations();
         }
     };
+    
+    $scope.setForeignKeyCandidateVisibility = function (visible) {
+        if (visible !== project.showForeignKeyCandidates) {
+            project.showForeignKeyCandidates = visible;
+            projectService.addProject(project);
+            getSchemaAndRelations();
+        }
+    };
 
     $scope.PrintImage = function() {
         if (myDiagram) {

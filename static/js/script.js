@@ -65,6 +65,7 @@ angular.module("test", ["ngRoute", "ui.bootstrap"])
             name: null,
             showUnrelated: true,
             abstractSchema: true,
+            showForeignKeyCandidates: true,
             databaseConnection: {
                 host: null,
                 port: null,

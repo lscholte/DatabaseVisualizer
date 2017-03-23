@@ -28,6 +28,9 @@
             <button class="btn btn-default optionButton" ng-click="setAbstractView(!project.abstractSchema)">
                     {{ project.abstractSchema ? "Show Entire Diagram" : "Show Abstract Diagram" }}
             </button>
+            <button class="btn btn-default optionButton" ng-click="setForeignKeyCandidateVisibility(!project.showForeignKeyCandidates)">
+                    {{ project.showForeignKeyCandidates ? "Hide Foreign Key Candidates" : "Show Foreign Key Candidates" }}
+            </button>
         </div>
         <div class="col-xs-2 col-md-2">
             <h4>Export Image</h4>
