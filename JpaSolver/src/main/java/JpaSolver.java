@@ -24,8 +24,14 @@ public class JpaSolver
 
     public static void main(String[] args) throws FileNotFoundException
     {
+        if (args.length < 1) {
+            System.out.print("error: not enough args");
+            System.exit(1);
+        }
+
         File dir = new File(args[0]);
         if (!dir.isDirectory()) {
+            System.out.print("error: input is not a directory");
             System.exit(1);
         }
 
