@@ -55,3 +55,4 @@ yarn.lock
 # OS X
 .DS_Store
 _MACOSX
+JpaSolver/target/
