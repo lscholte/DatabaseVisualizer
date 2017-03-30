@@ -22,5 +22,16 @@
     <orderEntry type="library" name="Maven: org.javassist:javassist:3.19.0-GA" level="project" />
     <orderEntry type="library" name="Maven: commons-io:commons-io:2.5" level="project" />
     <orderEntry type="library" name="Maven: com.google.code.gson:gson:2.8.0" level="project" />
+    <orderEntry type="library" name="Maven: com.github.javaparser:javaparser-core:3.1.4" level="project" />
+    <orderEntry type="library" name="Maven: com.github.javaparser:java-symbol-solver-core:0.5.2" level="project" />
+    <orderEntry type="library" name="Maven: com.google.guava:guava:18.0" level="project" />
+    <orderEntry type="library" name="Maven: com.github.javaparser:java-symbol-solver-logic:0.5.2" level="project" />
+    <orderEntry type="library" name="Maven: com.javaslang:javaslang:2.0.0-beta" level="project" />
+    <orderEntry type="library" name="Maven: io.javaslang:javaslang:2.0.3" level="project" />
+    <orderEntry type="library" name="Maven: io.javaslang:javaslang-match:2.0.3" level="project" />
+    <orderEntry type="library" name="Maven: com.github.javaparser:java-symbol-solver-model:0.5.2" level="project" />
+    <orderEntry type="library" name="Maven: org.javassist:javassist:3.19.0-GA" level="project" />
+    <orderEntry type="library" name="Maven: commons-io:commons-io:2.5" level="project" />
+    <orderEntry type="library" name="Maven: com.google.code.gson:gson:2.8.0" level="project" />
   </component>
 </module>

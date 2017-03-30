@@ -11,13 +11,12 @@ import com.github.javaparser.symbolsolver.javaparsermodel.JavaParserFacade;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.JavaParserTypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
+import com.google.gson.Gson;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 public class JpaSolver
 {
@@ -35,6 +34,9 @@ public class JpaSolver
         typeSolver.add(new JavaParserTypeSolver(dir));
 
         Iterator<File> fileIterator = FileUtils.iterateFiles(dir, new String[]{"java"}, true);
+
+        HashMap<String, EntityVisitor> entities = new HashMap<>();
+
         while (fileIterator.hasNext()) {
             File f = fileIterator.next();
 
@@ -42,10 +44,47 @@ public class JpaSolver
             EntityVisitor ev = new EntityVisitor();
             ev.visit(cu, null);
             if (ev.isEntity && ev.hasRelations) {
-                System.out.println(f.getName());
+                entities.put(ev.className, ev);
             }
         }
 
+        List<HashMap<String, String>> relations = new ArrayList<>();
+
+        for (Map.Entry<String, EntityVisitor> entityItem : entities.entrySet()) {
+            EntityVisitor entity = entityItem.getValue();
+            for (EntityVisitor.Relation relation : entity.relations) {
+                EntityVisitor referencedEntity = entities.get(relation.referencedEntityClass);
+                if (referencedEntity != null) {
+                    HashMap<String, String> relationMap = new HashMap<>();
+                    relationMap.put("from", entity.tableName);
+                    relationMap.put("to", referencedEntity.tableName);
+                    relationMap.put("fkColumn", relation.columnName);
+                    switch (relation.type) {
+                        case ManyToOne:
+                            relationMap.put("text", "0..N");
+                            relationMap.put("toText", "1");
+                            break;
+                        case ManyToMany:
+                            relationMap.put("text", "0..N");
+                            relationMap.put("toText", "0..N");
+                            break;
+                        case OneToMany:
+                            relationMap.put("text", "1");
+                            relationMap.put("toText", "0..N");
+                            break;
+                        case OneToOne:
+                            relationMap.put("test", "1");
+                            relationMap.put("toText", "1");
+                            break;
+                    }
+
+                    relations.add(relationMap);
+                }
+            }
+        }
+
+        Gson gson = new Gson();
+        System.out.println(gson.toJson(relations));
     }
 
     private static class EntityVisitor extends VoidVisitorAdapter<Void>
