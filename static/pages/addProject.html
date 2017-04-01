@@ -55,8 +55,23 @@
             <div class="form-group">
                 <label class="col-sm-3 control-label">Source Code</label>
                 <div class="col-sm-9">
-                    <input type="file" id="filepicker" name="fileList" webkitdirectory multiple />
-                    <ul id="listing"></ul>
+                    
+<!--                    Hack to hide the default file picker button and output in order to replace it with our own customized version-->
+                    <label>
+                        <input type="file" id="filepicker" name="fileList" class="hidden-filepicker" ng-model="project.sourceFiles" webkitdirectory multiple file-input java-files>
+                        <div class="btn btn-default">Select Files</div>
+                    </label>
+
+                    <div ng-if="!project.sourceFiles || project.sourceFiles.length === 0">
+                        No files Selected
+                    </div>
+                    <div ng-if="project.sourceFiles.length === 1">
+                        {{project.sourceFiles[0]}}
+                    </div>
+                    <div ng-if="project.sourceFiles.length > 1">
+                        {{project.sourceFiles.length + " files selected"}}
+                    </div>
+
                 </div>
             </div>
 

@@ -72,7 +72,8 @@ angular.module("test", ["ngRoute", "ui.bootstrap"])
                 user: null,
                 password: null,
                 database: null
-            }
+            },
+            sourceFiles: []
         };
 
         $scope.originalProjectName = $scope.project.name;
@@ -88,7 +89,6 @@ angular.module("test", ["ngRoute", "ui.bootstrap"])
 
             //Notify observers that the projects have updated
             $rootScope.$broadcast("projectsUpdated");
-
         };
 
         $scope.loadProject = function() {
@@ -198,4 +198,41 @@ angular.module("test", ["ngRoute", "ui.bootstrap"])
                 });
             }
         };
+    }).directive("javaFiles", function(projectService) {
+        return {
+            restrict: "A",
+            require: "ngModel",
+            priority: 1,
+            link: function(scope, element, attrs, controller) {
+                element.bind("change", function(e) {
+                    var files = controller.$modelValue;
+                    if(files.length === 0) {
+                        e.target.setCustomValidity("");
+                        return;
+                    }
+                    for(file in files) {
+                        if(files[file].endsWith(".java")) {
+                            e.target.setCustomValidity("");
+                            return;
+                        }
+                    }
+                    e.target.setCustomValidity("The uploaded source code must contain at least 1 Java file");
+                });
+            }
+        };
+    }).directive("fileInput", function() {
+        return {
+            restrict: "A",
+            require: "ngModel",
+            priority: 0,
+            link: function (scope, element ,attrs, controller) {
+                element.on("change", function(e) {
+                    var files = [];
+                    for(var i = 0; i < element[0].files.length; ++i) {
+                        files[i] = element[0].files[i].name;
+                    }
+                    controller.$setViewValue(files);
+                })
+            }
+        }
     });

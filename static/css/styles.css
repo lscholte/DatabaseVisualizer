@@ -116,3 +116,8 @@
     margin-bottom: 10px;
     padding-bottom: 10px;
 }
+
+.hidden-filepicker {
+    position: fixed;
+    opacity: 0;
+}
