@@ -198,7 +198,7 @@ angular.module("test", ["ngRoute", "ui.bootstrap"])
                 });
             }
         };
-    }).directive("javaFiles", function(projectService) {
+    }).directive("javaFiles", function() {
         return {
             restrict: "A",
             require: "ngModel",
