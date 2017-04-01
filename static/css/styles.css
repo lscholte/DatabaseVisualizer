@@ -120,4 +120,5 @@
 .hidden-filepicker {
     position: fixed;
     opacity: 0;
+    top: -1000;
 }
