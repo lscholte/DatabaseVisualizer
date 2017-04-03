@@ -139,7 +139,38 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
                         new go.Binding("visible", "isSubGraphExpanded", function (val) { return !val; }).ofObject(),
                         new go.Binding("itemArray", "items")
                     )
-                )
+                ),
+                {
+                    contextMenu:
+                        $(
+                            go.Adornment, "Vertical",
+                            $(
+                                "ContextMenuButton",
+                                $(go.TextBlock, "Force Directed Layout"),
+                                { click: groupFDLayout }
+                            ),
+                            $(
+                                "ContextMenuButton",
+                                $(go.TextBlock, "Grid Layout"),
+                                { click: groupGLayout }
+                            ),
+                            $(
+                                "ContextMenuButton",
+                                $(go.TextBlock, "Tree Layout"),
+                                { click: groupTLayout }
+                            ),
+                            $(
+                                "ContextMenuButton",
+                                $(go.TextBlock, "Layered Diagraph Layout"),
+                                { click: groupLDLayout }
+                            ),
+                            $(
+                                "ContextMenuButton",
+                                $(go.TextBlock, "Circular Layout"),
+                                { click: groupCLayout }
+                            )
+                    )
+                }
             );
 
         // define the Node template, representing an entity
@@ -380,6 +411,36 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
             myDiagram.layout = new go.TreeLayout();
         }
     };
+    
+    function groupFDLayout(e, obj) {        
+        var group = myDiagram.findNodeForData(obj.part.data);
+        group.layout = new go.ForceDirectedLayout();
+        group.invalidateLayout();
+    }
+    
+    function groupGLayout(e, obj) {
+        var group = myDiagram.findNodeForData(obj.part.data);
+        group.layout = new go.GridLayout();
+        group.invalidateLayout();
+    }
+    
+    function groupCLayout(e, obj) {
+        var group = myDiagram.findNodeForData(obj.part.data);
+        group.layout = new go.CircularLayout();        
+        group.invalidateLayout();
+    }
+    
+    function groupLDLayout(e, obj) {
+        var group = myDiagram.findNodeForData(obj.part.data);
+        group.layout = new go.LayeredDigraphLayout();
+        group.invalidateLayout();
+    }
+    
+    function groupTLayout(e, obj) {
+        var group = myDiagram.findNodeForData(obj.part.data);
+        group.layout = new go.TreeLayout();
+        group.invalidateLayout();
+    }
 
     $scope.setAllAttributeVisibilty = function(visible) {
         if (myDiagram) {
