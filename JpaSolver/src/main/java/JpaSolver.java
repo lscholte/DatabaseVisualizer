@@ -49,7 +49,7 @@ public class JpaSolver
             CompilationUnit cu = JavaParser.parse(f);
             EntityVisitor ev = new EntityVisitor();
             ev.visit(cu, null);
-            if (ev.isEntity && ev.hasRelations) {
+            if (ev.isEntity) {
                 entities.put(ev.className, ev);
             }
         }
@@ -96,7 +96,6 @@ public class JpaSolver
     private static class EntityVisitor extends VoidVisitorAdapter<Void>
     {
         boolean isEntity = false;
-        boolean hasRelations = false;
 
         String tableName;
         String className;
@@ -189,7 +188,6 @@ public class JpaSolver
                 r.referencedEntityClass = JavaParserFacade.get(typeSolver).getType(v).describe();
 
                 relations.add(r);
-                hasRelations = true;
             }
 
             super.visit(f, arg);

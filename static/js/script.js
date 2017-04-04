@@ -207,16 +207,11 @@ angular.module("test", ["ngRoute", "ui.bootstrap"])
                 element.bind("change", function(e) {
                     var files = controller.$modelValue;
                     if(files.length === 0) {
-                        e.target.setCustomValidity("");
+                        e.target.setCustomValidity("The uploaded source code must contain at least 1 Java file");
                         return;
                     }
-                    for(file in files) {
-                        if(files[file].endsWith(".java")) {
-                            e.target.setCustomValidity("");
-                            return;
-                        }
-                    }
-                    e.target.setCustomValidity("The uploaded source code must contain at least 1 Java file");
+                    e.target.setCustomValidity("");
+
                 });
             }
         };
@@ -227,10 +222,9 @@ angular.module("test", ["ngRoute", "ui.bootstrap"])
             priority: 0,
             link: function (scope, element ,attrs, controller) {
                 element.on("change", function(e) {
-                    var files = [];
-                    for(var i = 0; i < element[0].files.length; ++i) {
-                        files[i] = element[0].files[i].name;
-                    }
+                    var files = Array.prototype.filter.call(element[0].files, function(file) {
+                        return file.name.endsWith(".java");
+                    });
                     controller.$setViewValue(files);
                 })
             }
