@@ -73,8 +73,11 @@ angular.module("test", ["ngRoute", "ui.bootstrap", "ngFileUpload"])
                 password: null,
                 database: null
             },
+            jpaRelations: null,
             sourceFiles: []
         };
+    
+        $scope.ready = true;
     
         $scope.originalProjectName = $scope.project.name;
 
@@ -89,20 +92,32 @@ angular.module("test", ["ngRoute", "ui.bootstrap", "ngFileUpload"])
 
             //Notify observers that the projects have updated
             $rootScope.$broadcast("projectsUpdated");
-            
-            console.log($scope.project.sourceFiles);
-            
-            Upload.upload({
-                    url: '/upload-file',
+                        
+            if($scope.project.sourceFiles.length > 0 && $scope.project.sourceFiles[0].name) {
+                $scope.ready = false;
+
+                Upload.upload({
+                    url: "/upload-file",
                     data: {file: $scope.project.sourceFiles}
                 }).then(function (resp) {
-                    console.log(resp.data);
+                    $scope.ready = true;
+                    $scope.closeProjectDetails();
+                    if(resp.data.includes("error")) {
+                        alert("Failed to parse the Java code");
+                    }
+                    else {
+                        $scope.project.jpaRelations = resp.data;
+                    }
                 }, function (resp) {
-                    console.log('Error status: ' + resp.status);
                 }, function (evt) {
                     var progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
-                    console.log('progress: ' + progressPercentage + '% ' + evt.config.data.file.name);
+                    $scope.progress = "Progress: " + progressPercentage + "%";
+                    if(progressPercentage >= 100) {
+                        $scope.progress = "Parsing Java";
+                    }
                 });
+            }
+
             
         };
 
@@ -115,7 +130,9 @@ angular.module("test", ["ngRoute", "ui.bootstrap", "ngFileUpload"])
         };
 
         $scope.closeProjectDetails = function() {
-            $uibModalInstance.close("cancel");
+            if($scope.ready) {
+                $uibModalInstance.close("cancel");                
+            }
         };
 
     }).controller("deleteProjectController", function($scope, $rootScope, $uibModalInstance, projectService) {
@@ -227,6 +244,29 @@ angular.module("test", ["ngRoute", "ui.bootstrap", "ngFileUpload"])
                     }
                     e.target.setCustomValidity("");
 
+                });
+            }
+        };
+    }).directive("jsonRelations", function() {
+        return {
+            restrict: "A",
+            require: "ngModel",
+            priority: 1,
+            link: function(scope, element, attrs, controller) {
+                element.bind("change", function(e) {
+                    var jsonText = controller.$modelValue;
+                    var relations = JSON.parse(jsonText);
+                    if (Array.isArray(relations)) {
+                        for (var i = 0; i < relations.length; i++) {
+                            var relation = relations[i];
+                            if (!('from' in relation) || !('to' in relation) || !('text' in relation) || !('toText' in relation) || !('fkColumn' in relation)) {
+                                e.target.setCustomValidity("JSON Relations are invalid");
+                                return;
+                            }
+                        }
+                    }
+
+                    e.target.setCustomValidity("");
                 });
             }
         };

@@ -2,6 +2,8 @@
 
 let mysql = require('mysql');
 let grouper = require('./group-relations.js');
+let fs = require('fs');
+let path = require('path');
 
 function sendError(message, errObject, res) {
     console.log("SQL Error: " + message);
@@ -171,13 +173,13 @@ module.exports.parseCode = function(req, res) {
         console.log(filepath);
         var child = exec('java -jar ./JpaSolver/jpaSolver-1.0-SNAPSHOT-jar-with-dependencies.jar ./uploaded_files/' + getRootDirectory(filepath), function (error, stdout, stderr) {
             res.json(stdout);
+            deleteFolderRecursive("./uploaded_files");
         });
     });
 }
 
 function getRootDirectory(filePath) {
-    var path = require('path');
-    var fs = require('fs');
+
     var dirname = path.dirname(filePath);
     if(!dirname || dirname === ".") {
         return filePath;
@@ -186,8 +188,6 @@ function getRootDirectory(filePath) {
 }
 
 function ensureDirectoryExistence(filePath) {
-    var path = require('path');
-    var fs = require('fs');
     var dirname = path.dirname(filePath);
     if (fs.existsSync(dirname)) {
         return true;
@@ -195,3 +195,18 @@ function ensureDirectoryExistence(filePath) {
     ensureDirectoryExistence(dirname);
     fs.mkdirSync(dirname);
 }
+
+var deleteFolderRecursive = function(path) {
+    if(fs.existsSync(path)) {
+        fs.readdirSync(path).forEach(function(file,index){
+            var curPath = path + "/" + file;
+            if(fs.lstatSync(curPath).isDirectory()) {
+                deleteFolderRecursive(curPath);
+            }
+            else {
+                fs.unlinkSync(curPath);
+            }
+        });
+        fs.rmdirSync(path);
+    }
+};
