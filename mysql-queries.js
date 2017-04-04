@@ -124,6 +124,8 @@ module.exports.getRelationsAction = function(req, res) {
         'FROM information_schema.TABLE_CONSTRAINTS AS tc ' +
         'JOIN information_schema.KEY_COLUMN_USAGE AS kcu ON tc.CONSTRAINT_NAME = kcu.CONSTRAINT_NAME ' +
         'WHERE tc.TABLE_SCHEMA = ? AND tc.CONSTRAINT_TYPE = "FOREIGN KEY"';
+    
+        console.log(req.body);
 
     performQuery(req.body, sqlQuery, [req.body.database],
         function(m, e) {
@@ -134,3 +136,8 @@ module.exports.getRelationsAction = function(req, res) {
         }
     );
 };
+
+module.exports.parseCode = function(req, res) {
+    console.log("FROM MYSQL QUERIES");
+    console.log(req.files);
+}

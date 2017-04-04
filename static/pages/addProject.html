@@ -59,7 +59,7 @@
                     <!--Hack to hide the default file picker button and output in order to replace it with our own customized version-->
                     <label>
                         <div class="btn btn-default">Select Files</div>
-                        <input type="file" id="filepicker" name="fileList" class="hidden-filepicker" ng-model="project.sourceFiles" webkitdirectory multiple file-input java-files>
+                        <input type="file" id="filepicker" name="fileList" class="hidden-filepicker" ng-model="files" webkitdirectory multiple file-input>
                     </label>
 
                     <div ng-if="!project.sourceFiles || project.sourceFiles.length === 0">

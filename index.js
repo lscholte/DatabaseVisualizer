@@ -8,13 +8,20 @@ app.use(bodyParser.urlencoded({
     extended: true
 }));
 
+var multipart = require('connect-multiparty');
+app.use(multipart({
+    uploadDir: "./uploaded_files"
+}));
+
 var mysqlQueries = require('./mysql-queries.js');
 
 app.use(express.static('static'));
+app.use(express.static('node_modules'));
 
 app.post('/sql/schema', mysqlQueries.getSchemaAction);
 app.post('/sql/abstract-schema', mysqlQueries.getAbstractSchemaAction);
 app.post('/sql/relations', mysqlQueries.getRelationsAction);
+app.post('/upload-file', mysqlQueries.parseCode);
 
 // Redirect any other paths to angular
 app.all(/\/.*/, function(req, res) {

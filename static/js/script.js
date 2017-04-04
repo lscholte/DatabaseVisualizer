@@ -1,4 +1,4 @@
-angular.module("test", ["ngRoute", "ui.bootstrap"])
+angular.module("test", ["ngRoute", "ui.bootstrap", "ngFileUpload"])
 
     .config(function($routeProvider, $locationProvider) {
 
@@ -59,7 +59,7 @@ angular.module("test", ["ngRoute", "ui.bootstrap"])
             $location.path("/view");
         };
 
-    }).controller("addProjectController", function($scope, $rootScope, $window, $uibModalInstance, projectService) {
+    }).controller("addProjectController", function($scope, $http, Upload, $rootScope, $window, $uibModalInstance, projectService) {
 
         $scope.project = {
             name: null,
@@ -75,7 +75,7 @@ angular.module("test", ["ngRoute", "ui.bootstrap"])
             },
             sourceFiles: []
         };
-
+    
         $scope.originalProjectName = $scope.project.name;
 
         $scope.saveProject = function() {
@@ -89,6 +89,40 @@ angular.module("test", ["ngRoute", "ui.bootstrap"])
 
             //Notify observers that the projects have updated
             $rootScope.$broadcast("projectsUpdated");
+            
+            console.log($scope.files);
+            
+            Upload.upload({
+                    url: '/upload-file',
+                    data: {file: $scope.files}
+                }).then(function (resp) {
+                    console.log('Success ' + resp.config.data.file.name + 'uploaded. Response: ' + resp.data);
+                }, function (resp) {
+                    console.log('Error status: ' + resp.status);
+                }, function (evt) {
+                    var progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
+                    console.log('progress: ' + progressPercentage + '% ' + evt.config.data.file.name);
+                });
+            
+//            $http({
+//                method: "POST",
+//                url: "/upload-file",
+//                headers: {
+//                    'Content-Type': 'multipart/form-data'
+//                },
+//                data: $scope.files,
+//                transformRequest: function(data, headersGetter) {
+//                        var formData = new FormData();
+//                        angular.forEach(data, function(value, key) {
+//                            formData.append(key, value);
+//                        });
+//                        return formData;
+//                    }
+//            }).then(function successCallback(response) {
+//                console.log("SUCCESS");
+//            }, function errorCallback(response) {
+//                console.log("FAIL");
+//            });
         };
 
         $scope.loadProject = function() {
@@ -227,11 +261,12 @@ angular.module("test", ["ngRoute", "ui.bootstrap"])
             priority: 0,
             link: function (scope, element ,attrs, controller) {
                 element.on("change", function(e) {
-                    var files = [];
-                    for(var i = 0; i < element[0].files.length; ++i) {
-                        files[i] = element[0].files[i].name;
-                    }
-                    controller.$setViewValue(files);
+//                    var files = [];
+//                    for(var i = 0; i < element[0].files.length; ++i) {
+//                        files[i] = element[0].files[i].name;
+//                    }
+//                    controller.$setViewValue(files);
+                    controller.$setViewValue(element[0].files);
                 })
             }
         }
