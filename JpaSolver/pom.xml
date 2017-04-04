@@ -19,12 +19,13 @@
                 </configuration>
             </plugin>
 
+            <!-- To build jar run 'mvn clean compile assembly:single' -->
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>JpaSolverGUI</mainClass>
+                            <mainClass>JpaSolver</mainClass> <!-- Replace with JpaSolverGUI to compile GUI -->
                         </manifest>
                     </archive>
                     <descriptorRefs>

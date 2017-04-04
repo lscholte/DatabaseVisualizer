@@ -110,7 +110,7 @@ public class JpaSolver
             System.exit(1);
         }
 
-        System.out.println();
+        System.out.println(json);
     }
 
     private static class EntityVisitor extends VoidVisitorAdapter<Void>
