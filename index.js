@@ -8,11 +8,20 @@ app.use(bodyParser.urlencoded({
     extended: true
 }));
 
-var multipart = require('connect-multiparty');
-app.use(multipart({
-    uploadDir: "./uploaded_files"
-}));
+//var multipart = require('connect-multiparty');
+//app.use(multipart({
+//    uploadDir: "./uploaded_files",
+//    maxFields: Infinity
+//}));
 
+
+var formidable = require('formidable');
+//app.use(formidable({
+//    uploadDir: './uploaded_files',
+//    multiples: true, // req.files to be arrays of files
+//    maxFields: 0
+//}));
+        
 var mysqlQueries = require('./mysql-queries.js');
 
 app.use(express.static('static'));

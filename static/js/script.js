@@ -90,13 +90,13 @@ angular.module("test", ["ngRoute", "ui.bootstrap", "ngFileUpload"])
             //Notify observers that the projects have updated
             $rootScope.$broadcast("projectsUpdated");
             
-            console.log($scope.files);
+            console.log($scope.project.sourceFiles);
             
             Upload.upload({
                     url: '/upload-file',
-                    data: {file: $scope.files}
+                    data: {file: $scope.project.sourceFiles}
                 }).then(function (resp) {
-                    console.log('Success ' + resp.config.data.file.name + 'uploaded. Response: ' + resp.data);
+                    console.log(resp.data);
                 }, function (resp) {
                     console.log('Error status: ' + resp.status);
                 }, function (evt) {
@@ -104,25 +104,6 @@ angular.module("test", ["ngRoute", "ui.bootstrap", "ngFileUpload"])
                     console.log('progress: ' + progressPercentage + '% ' + evt.config.data.file.name);
                 });
             
-//            $http({
-//                method: "POST",
-//                url: "/upload-file",
-//                headers: {
-//                    'Content-Type': 'multipart/form-data'
-//                },
-//                data: $scope.files,
-//                transformRequest: function(data, headersGetter) {
-//                        var formData = new FormData();
-//                        angular.forEach(data, function(value, key) {
-//                            formData.append(key, value);
-//                        });
-//                        return formData;
-//                    }
-//            }).then(function successCallback(response) {
-//                console.log("SUCCESS");
-//            }, function errorCallback(response) {
-//                console.log("FAIL");
-//            });
         };
 
         $scope.loadProject = function() {
@@ -241,32 +222,30 @@ angular.module("test", ["ngRoute", "ui.bootstrap", "ngFileUpload"])
                 element.bind("change", function(e) {
                     var files = controller.$modelValue;
                     if(files.length === 0) {
-                        e.target.setCustomValidity("");
+                        e.target.setCustomValidity("The uploaded source code must contain at least 1 Java file");
                         return;
                     }
-                    for(file in files) {
-                        if(files[file].endsWith(".java")) {
-                            e.target.setCustomValidity("");
-                            return;
-                        }
-                    }
-                    e.target.setCustomValidity("The uploaded source code must contain at least 1 Java file");
+                    e.target.setCustomValidity("");
+
                 });
             }
         };
-    }).directive("fileInput", function() {
+    }).directive("fileInput", function(Upload) {
         return {
             restrict: "A",
             require: "ngModel",
             priority: 0,
             link: function (scope, element ,attrs, controller) {
                 element.on("change", function(e) {
-//                    var files = [];
-//                    for(var i = 0; i < element[0].files.length; ++i) {
-//                        files[i] = element[0].files[i].name;
-//                    }
-//                    controller.$setViewValue(files);
-                    controller.$setViewValue(element[0].files);
+                    var files = Array.prototype.filter.call(element[0].files, function(file) {
+                        return file.name.endsWith(".java");
+                    });
+                    
+                    for(var i in files) {
+                        files[i] = Upload.rename(files[i], files[i].webkitRelativePath);
+                    }
+
+                    controller.$setViewValue(files);
                 })
             }
         }

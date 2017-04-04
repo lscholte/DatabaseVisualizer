@@ -138,6 +138,60 @@ module.exports.getRelationsAction = function(req, res) {
 };
 
 module.exports.parseCode = function(req, res) {
-    console.log("FROM MYSQL QUERIES");
-    console.log(req.files);
+    
+//    var fs = require('fs');
+//    
+//            console.log(req.files.file);
+//    
+//    for(var file in req.files.file) {
+//            console.log(req.files.file[file].path);
+//            console.log(req.files.file[file].originalFilename);
+//       fs.rename(req.files.file[file].path, req.files.file[file].originalFilename, function(err) {
+//            if ( err ) console.log('ERROR: ' + err);
+//        }); 
+//    }
+//            console.log("TESTING");
+
+    
+    var formidable = require('formidable');
+
+    var form = new formidable.IncomingForm();
+    form.parse(req);
+    
+    var filepath = "";
+
+    form.on('fileBegin', function (name, file){
+        file.path = './uploaded_files/' + file.name;
+        ensureDirectoryExistence(file.path);
+        filepath = file.name;
+    });
+
+    form.on('end', function() {
+        var exec = require('child_process').exec;
+        console.log(filepath);
+        var child = exec('java -jar ./JpaSolver/jpaSolver-1.0-SNAPSHOT-jar-with-dependencies.jar ./uploaded_files/' + getRootDirectory(filepath), function (error, stdout, stderr) {
+            res.json(stdout);
+        });
+    });
+}
+
+function getRootDirectory(filePath) {
+    var path = require('path');
+    var fs = require('fs');
+    var dirname = path.dirname(filePath);
+    if(!dirname || dirname === ".") {
+        return filePath;
+    }
+    return getRootDirectory(dirname);
+}
+
+function ensureDirectoryExistence(filePath) {
+    var path = require('path');
+    var fs = require('fs');
+    var dirname = path.dirname(filePath);
+    if (fs.existsSync(dirname)) {
+        return true;
+    }
+    ensureDirectoryExistence(dirname);
+    fs.mkdirSync(dirname);
 }
