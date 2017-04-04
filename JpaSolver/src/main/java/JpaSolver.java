@@ -22,17 +22,10 @@ public class JpaSolver
 {
     static CombinedTypeSolver typeSolver;
 
-    public static void main(String[] args) throws FileNotFoundException
+    public static String getRelationJson(File dir)
     {
-        if (args.length < 1) {
-            System.out.print("error: not enough args");
-            System.exit(1);
-        }
-
-        File dir = new File(args[0]);
         if (!dir.isDirectory()) {
-            System.out.print("error: input is not a directory");
-            System.exit(1);
+            return null;
         }
 
         typeSolver = new CombinedTypeSolver();
@@ -45,10 +38,14 @@ public class JpaSolver
 
         while (fileIterator.hasNext()) {
             File f = fileIterator.next();
-
-            CompilationUnit cu = JavaParser.parse(f);
             EntityVisitor ev = new EntityVisitor();
-            ev.visit(cu, null);
+
+            try {
+                ev.visit(JavaParser.parse(f), null);
+            } catch (Exception e) {
+                return null;
+            }
+
             if (ev.isEntity) {
                 entities.put(ev.className, ev);
             }
@@ -79,7 +76,7 @@ public class JpaSolver
                             relationMap.put("toText", "0..N");
                             break;
                         case OneToOne:
-                            relationMap.put("test", "1");
+                            relationMap.put("text", "1");
                             relationMap.put("toText", "1");
                             break;
                     }
@@ -90,7 +87,30 @@ public class JpaSolver
         }
 
         Gson gson = new Gson();
-        System.out.println(gson.toJson(relations));
+        return gson.toJson(relations);
+    }
+
+    public static void main(String[] args) throws FileNotFoundException
+    {
+        if (args.length < 1) {
+            System.out.print("error: not enough args");
+            System.exit(1);
+        }
+
+        File dir = new File(args[0]);
+        if (!dir.isDirectory()) {
+            System.out.print("error: input is not a directory");
+            System.exit(1);
+        }
+
+        String json = getRelationJson(dir);
+
+        if (json == null) {
+            System.out.print("error: unknown error occurred");
+            System.exit(1);
+        }
+
+        System.out.println();
     }
 
     private static class EntityVisitor extends VoidVisitorAdapter<Void>
@@ -173,7 +193,7 @@ public class JpaSolver
                     case "JoinColumn":
                         r.columnName = a.getChildNodes().stream()
                             .filter(n -> n instanceof MemberValuePair).map(n -> (MemberValuePair) n)
-                            .filter(mvp -> mvp.getNameAsString().equals("name")).map(mvp -> mvp.getValue().toString())
+                            .filter(mvp -> mvp.getNameAsString().equals("name")).map(mvp -> mvp.getValue().toString().replace("\"", ""))
                             .findAny().orElse(r.columnName);
                         break;
                 }
@@ -182,7 +202,8 @@ public class JpaSolver
             // If this is a real relation add it to our list
             if (r.type != Relation.Type.NoRelation) {
                 // If we haven't set our reference column name yet, set it to the variable name
-                r.columnName = v.getNameAsString();
+                if (r.columnName == null)
+                    r.columnName = v.getNameAsString();
 
                 // Also figure out the class of the referenced table
                 r.referencedEntityClass = JavaParserFacade.get(typeSolver).getType(v).describe();

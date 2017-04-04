@@ -20,13 +20,13 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
 
     function gojs_init(schema, relations) {
         $scope.hiddenNodes = [];
-        
+
         var $ = go.GraphObject.make; // for conciseness in defining templates
 
         if (myDiagram) {
             myDiagram.div = null;
         }
-        
+
         myDiagram = $(go.Diagram, "myDiagramDiv", // must name or refer to the DIV HTML element
             {
                 initialContentAlignment: go.Spot.Center,
@@ -49,6 +49,10 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
             Foreign: $(go.Brush, "Linear", {
                 0: "rgb(158, 209, 159)",
                 1: "rgb(67, 101, 56)"
+            }),
+            JPA: $(go.Brush, "Linear", {
+                0: "rgb(255, 162, 0)",
+                1: "rgb(123, 78, 0)"
             }),
             None: $(go.Brush, "Linear", {
                 0: "rgb(150, 150, 250)",
@@ -259,9 +263,9 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
                 },
                 $(go.Shape, // the link shape
                     {
-                        stroke: "#303B45",
                         strokeWidth: 2.5
-                    }),
+                    },
+                    new go.Binding("stroke", "color")),
                 $(go.TextBlock, // the "from" label
                     {
                         textAlign: "center",
@@ -284,7 +288,7 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
                     new go.Binding("text", "toText"))
             );
 
-        // create the model for the E-R diagram
+        // Set up the colors for the node items
         schema.forEach(function(e) {
             if (e.items !== undefined) {
                 e.items.forEach(function(i) {
@@ -293,7 +297,14 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
             }
         });
 
-        myDiagram.model = new go.GraphLinksModel(schema, relations);       
+        // And for the relations if they don't already have a color
+        relations.forEach(function (e) {
+           if (!("color" in e)) {
+               e.color = "#303B45";
+           }
+        });
+
+        myDiagram.model = new go.GraphLinksModel(schema, relations);
 
         //When diagram is updated, we want node data to be stored in persistent storage.
         //First remove the listener in case it already exists
@@ -301,7 +312,7 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
         myDiagram.addModelChangedListener(modelChangedListener);
 
     }
-    
+
     function modelChangedListener(event) {
             if (event.isTransactionFinished) {
 
@@ -357,7 +368,7 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
             tableListVisible: !tableList ? null : tableList.visible,
             entityVisibility: node.visible,
             innerNodeData: {}
-        };        
+        };
     }
 
     function storeLowLevelNode(storedNodes, nodeKey) {
@@ -411,31 +422,31 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
             myDiagram.layout = new go.TreeLayout();
         }
     };
-    
-    function groupFDLayout(e, obj) {        
+
+    function groupFDLayout(e, obj) {
         var group = myDiagram.findNodeForData(obj.part.data);
         group.layout = new go.ForceDirectedLayout();
         group.invalidateLayout();
     }
-    
+
     function groupGLayout(e, obj) {
         var group = myDiagram.findNodeForData(obj.part.data);
         group.layout = new go.GridLayout();
         group.invalidateLayout();
     }
-    
+
     function groupCLayout(e, obj) {
         var group = myDiagram.findNodeForData(obj.part.data);
-        group.layout = new go.CircularLayout();        
+        group.layout = new go.CircularLayout();
         group.invalidateLayout();
     }
-    
+
     function groupLDLayout(e, obj) {
         var group = myDiagram.findNodeForData(obj.part.data);
         group.layout = new go.LayeredDigraphLayout();
         group.invalidateLayout();
     }
-    
+
     function groupTLayout(e, obj) {
         var group = myDiagram.findNodeForData(obj.part.data);
         group.layout = new go.TreeLayout();
@@ -468,7 +479,7 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
             getSchemaAndRelations();
         }
     };
-    
+
     $scope.setForeignKeyCandidateVisibility = function (visible) {
         if (visible !== project.showForeignKeyCandidates) {
             project.showForeignKeyCandidates = visible;
@@ -509,10 +520,50 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
 
     function finishedQueries() {
         if (project.abstractSchema) {
-            // The schema element will actually have schema and relations. We want to merge the relations into ours            
+            // The schema element will actually have schema and relations. We want to merge the relations into ours
             queries.relations = queries.schema.relations.concat(queries.relations);
             queries.schema = queries.schema.schema;
+        }
 
+        if (project.jpaRelations) {
+            // Merge our JPA relations in
+            var jpaRelations = JSON.parse(project.jpaRelations);
+            jpaRelations.forEach(function (relation) {
+                // First we will color the item in the entity specially
+                var fromEntity = queries.schema.find(function(entity) {
+                    return entity.key === relation.from;
+                });
+
+                if (fromEntity) {
+                    // Make sure we can find both sides of this relation
+                    var toEntity = queries.schema.find(function(entity) {
+                        return entity.key === relation.to;
+                    });
+
+                    if (toEntity) {
+                        var fromColumn = fromEntity.items.find(function (column) {
+                            return column.name === relation.fkColumn;
+                        });
+
+                        if (fromColumn) {
+                            fromColumn.figure = "Decision";
+                            fromColumn.color = "JPA";
+                        }
+
+                        // Next we will add the relations, overwriting any current ones
+                        queries.relations = queries.relations.filter(function (rel) {
+                            return rel.from !== relation.from || rel.to !== relation.to;
+                        });
+
+                        // Add a special color to JPA relations
+                        relation.color = "#C54D00";
+                        queries.relations.push(relation);
+                    }
+                }
+            });
+        }
+
+        if (project.abstractSchema) {
             // We and also remove relations between separate abstract entities (they crowd things and cause really buggy
             // gojs behaviour)
             queries.relations = queries.relations.filter(function(relation) {
@@ -537,7 +588,7 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
         $scope.status = '';
         loadDiagram();
     }
-    
+
     function getSchemaAndRelations() {
         queries.relations = queries.schema = null;
         $http({
@@ -569,7 +620,7 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
             getSchema(null);
         }
     }
-    
+
     // Depending on whether or not we want to limit to only related tables, we may need to wait for relations before getting schema.
     function getSchema(limitTables) {
         var data = project.databaseConnection;
@@ -605,7 +656,7 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
     function loadDiagram() {
         project.abstractSchema ?
             loadHighLevelDiagram() :
-            loadLowLevelDiagram();        
+            loadLowLevelDiagram();
     }
 
     function loadHighLevelNode(storedNodes, nodeKey) {
@@ -624,7 +675,7 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
                 node.location.x = storedNodes[nodeKey].location.x;
                 node.location.y = storedNodes[nodeKey].location.y;
             }
-                
+
             if (storedNodes[nodeKey].isExpanded != null) {
                 node.isSubGraphExpanded = storedNodes[nodeKey].isExpanded;
             }

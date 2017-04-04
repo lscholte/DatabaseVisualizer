@@ -11,6 +11,12 @@ app.use(bodyParser.urlencoded({
 var mysqlQueries = require('./mysql-queries.js');
 
 app.use(express.static('static'));
+app.use('static', express.static('download', {
+    'index': false,
+    'setHeaders': (res) => {
+        res.setHeader('Content-Disposition', 'attachment')
+    }
+}));
 
 app.post('/sql/schema', mysqlQueries.getSchemaAction);
 app.post('/sql/abstract-schema', mysqlQueries.getAbstractSchemaAction);

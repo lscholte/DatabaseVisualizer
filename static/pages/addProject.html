@@ -53,10 +53,21 @@
             </div>
 
             <div class="form-group">
+                <label class="col-sm-3 control-label">JPA Relations</label>
+                <div class="col-sm-9">
+                    <textarea name="jpaRelations" class="form-control" ng-model="project.jpaRelations" data-json-relations></textarea>
+                    <span class="help-block">
+                        (This is optional) Download the <a href="/download/JpaParser.jar" target="_self">JPA Parser java app</a> and run it and copy the JSON output into this field. Please ensure you have Java 8 installed to run the app.
+                    </span>
+                </div>
+            </div>
+
+            <!--
+            <div class="form-group">
                 <label class="col-sm-3 control-label">Source Code</label>
                 <div class="col-sm-9">
-                    
-                    <!--Hack to hide the default file picker button and output in order to replace it with our own customized version-->
+
+                    <!--Hack to hide the default file picker button and output in order to replace it with our own customized version -- / >
                     <label>
                         <div class="btn btn-default">Select Files</div>
                         <input type="file" id="filepicker" name="fileList" class="hidden-filepicker" ng-model="project.sourceFiles" webkitdirectory multiple file-input java-files>
@@ -74,7 +85,7 @@
 
                 </div>
             </div>
-
+            -->
         </div>
         <div class="modal-footer">
             <input type="submit" class="btn btn-primary" value="Save Project">

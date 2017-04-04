@@ -73,7 +73,8 @@ angular.module("test", ["ngRoute", "ui.bootstrap"])
                 password: null,
                 database: null
             },
-            sourceFiles: []
+            jpaRelations: null,
+            //sourceFiles: []
         };
 
         $scope.originalProjectName = $scope.project.name;
@@ -212,6 +213,29 @@ angular.module("test", ["ngRoute", "ui.bootstrap"])
                     }
                     e.target.setCustomValidity("");
 
+                });
+            }
+        };
+    }).directive("jsonRelations", function() {
+        return {
+            restrict: "A",
+            require: "ngModel",
+            priority: 1,
+            link: function(scope, element, attrs, controller) {
+                element.bind("change", function(e) {
+                    var jsonText = controller.$modelValue;
+                    var relations = JSON.parse(jsonText);
+                    if (Array.isArray(relations)) {
+                        for (var i = 0; i < relations.length; i++) {
+                            var relation = relations[i];
+                            if (!('from' in relation) || !('to' in relation) || !('text' in relation) || !('toText' in relation) || !('fkColumn' in relation)) {
+                                e.target.setCustomValidity("JSON Relations are invalid");
+                                return;
+                            }
+                        }
+                    }
+
+                    e.target.setCustomValidity("");
                 });
             }
         };

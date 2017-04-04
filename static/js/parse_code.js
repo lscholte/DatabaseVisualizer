@@ -1,4 +1,4 @@
-document.getElementById("filepicker").addEventListener("change", function(event) {
+/*document.getElementById("filepicker").addEventListener("change", function(event) {
   let output = document.getElementById("listing");
   let files = event.target.files;
 
@@ -7,4 +7,4 @@ document.getElementById("filepicker").addEventListener("change", function(event)
     item.innerHTML = files[i].webkitRelativePath;
     output.appendChild(item);
   };
-}, false);
+}, false);*/
