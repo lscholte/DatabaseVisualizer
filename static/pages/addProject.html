@@ -1,7 +1,6 @@
 <div class="modal-content" ng-init="loadProject()">
     <form class="form-horizontal" ng-submit="saveProject(); closeProjectDetails()">
         <div class="modal-header">
-            <button type="button" class="close" ng-click="closeProjectDetails()" aria-hidden="true">&times;</button>
             <h4 class="modal-title">Configure Project</h4>
         </div>
         <div class="modal-body">
@@ -64,7 +63,7 @@
             </div>
 -->
 
-            
+
             <div class="form-group">
                 <label class="col-sm-3 control-label">Source Code</label>
                 <div class="col-sm-9">
@@ -90,11 +89,11 @@
 
                 </div>
             </div>
-            
+
         </div>
         <div class="modal-footer">
-            <input type="submit" class="btn btn-primary" value="Save Project">
-            <input type="button" class="btn btn-default" value="Cancel" ng-click="closeProjectDetails()">
+            <input id="save_btn" type="submit" class="btn btn-primary" value="Save Project">
+            <input id="cancel_btn" type="button" class="btn btn-default" value="Cancel" ng-click="closeProjectDetails()">
         </div>
     </form>
 </div>

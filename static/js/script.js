@@ -42,7 +42,9 @@ angular.module("test", ["ngRoute", "ui.bootstrap", "ngFileUpload"])
             projectService.selectProject(projectName);
             var modalInstance = $uibModal.open({
                 templateUrl: "pages/addProject.html",
-                controller: "addProjectController"
+                controller: "addProjectController",
+                backdrop: 'static',
+                keyboard  : false
             });
         };
 
@@ -76,15 +78,18 @@ angular.module("test", ["ngRoute", "ui.bootstrap", "ngFileUpload"])
             jpaRelations: null,
             sourceFiles: []
         };
-    
+
         $scope.ready = true;
-    
+
         $scope.originalProjectName = $scope.project.name;
 
         $scope.saveProject = function() {
 
+            $("#save_btn").prop("disabled", true);
+            $("#cancel_btn").prop("disabled", true);
+
             //If this is not a new project
-            if ($scope.originalProjectName != null) {
+            if ($scope.originalProjectName !== null) {
                 projectService.removeProject($scope.originalProjectName);
             }
             //Otherwise we are editing an existing project and changing the name
@@ -92,7 +97,7 @@ angular.module("test", ["ngRoute", "ui.bootstrap", "ngFileUpload"])
 
             //Notify observers that the projects have updated
             $rootScope.$broadcast("projectsUpdated");
-                        
+
             if($scope.project.sourceFiles.length > 0 && $scope.project.sourceFiles[0].name) {
                 $scope.ready = false;
 
@@ -102,11 +107,15 @@ angular.module("test", ["ngRoute", "ui.bootstrap", "ngFileUpload"])
                 }).then(function (resp) {
                     $scope.ready = true;
                     $scope.closeProjectDetails();
-                    if(resp.data.includes("error")) {
-                        alert("Failed to parse the Java code");
+                    $("#save_btn").prop("disabled", false);
+                    $("#cancel_btn").prop("disabled", false);
+                    if(resp.data.trim().startsWith("error")) {
+                        alert("Failed to parse the Java code, please ensure you selected the base directory of your java sources.\n\nFor a maven project, this would be something like PROJECT_DIR/src/main/java");
                     }
                     else {
                         $scope.project.jpaRelations = resp.data;
+                        projectService.addProject($scope.project);
+                        $rootScope.$broadcast("projectsUpdated");
                     }
                 }, function (resp) {
                 }, function (evt) {
@@ -118,7 +127,7 @@ angular.module("test", ["ngRoute", "ui.bootstrap", "ngFileUpload"])
                 });
             }
 
-            
+
         };
 
         $scope.loadProject = function() {
@@ -131,7 +140,7 @@ angular.module("test", ["ngRoute", "ui.bootstrap", "ngFileUpload"])
 
         $scope.closeProjectDetails = function() {
             if($scope.ready) {
-                $uibModalInstance.close("cancel");                
+                $uibModalInstance.close("cancel");
             }
         };
 
@@ -280,7 +289,7 @@ angular.module("test", ["ngRoute", "ui.bootstrap", "ngFileUpload"])
                     var files = Array.prototype.filter.call(element[0].files, function(file) {
                         return file.name.endsWith(".java");
                     });
-                    
+
                     for(var i in files) {
                         files[i] = Upload.rename(files[i], files[i].webkitRelativePath);
                     }

@@ -126,7 +126,7 @@ module.exports.getRelationsAction = function(req, res) {
         'FROM information_schema.TABLE_CONSTRAINTS AS tc ' +
         'JOIN information_schema.KEY_COLUMN_USAGE AS kcu ON tc.CONSTRAINT_NAME = kcu.CONSTRAINT_NAME ' +
         'WHERE tc.TABLE_SCHEMA = ? AND tc.CONSTRAINT_TYPE = "FOREIGN KEY"';
-    
+
         console.log(req.body);
 
     performQuery(req.body, sqlQuery, [req.body.database],
@@ -140,27 +140,27 @@ module.exports.getRelationsAction = function(req, res) {
 };
 
 module.exports.parseCode = function(req, res) {
-    
+
 //    var fs = require('fs');
-//    
+//
 //            console.log(req.files.file);
-//    
+//
 //    for(var file in req.files.file) {
 //            console.log(req.files.file[file].path);
 //            console.log(req.files.file[file].originalFilename);
 //       fs.rename(req.files.file[file].path, req.files.file[file].originalFilename, function(err) {
 //            if ( err ) console.log('ERROR: ' + err);
-//        }); 
+//        });
 //    }
 //            console.log("TESTING");
 
-    
-    var formidable = require('formidable');
 
-    var form = new formidable.IncomingForm();
+    let formidable = require('formidable');
+
+    let form = new formidable.IncomingForm();
     form.parse(req);
-    
-    var filepath = "";
+
+    let filepath = "";
 
     form.on('fileBegin', function (name, file){
         file.path = './uploaded_files/' + file.name;
@@ -169,18 +169,18 @@ module.exports.parseCode = function(req, res) {
     });
 
     form.on('end', function() {
-        var exec = require('child_process').exec;
+        let exec = require('child_process').exec;
         console.log(filepath);
-        var child = exec('java -jar ./JpaSolver/jpaSolver-1.0-SNAPSHOT-jar-with-dependencies.jar ./uploaded_files/' + getRootDirectory(filepath), function (error, stdout, stderr) {
+        let child = exec('java -jar ./JpaSolver/jpaSolver-1.0-SNAPSHOT-jar-with-dependencies.jar ./uploaded_files/' + getRootDirectory(filepath), function (error, stdout, stderr) {
             res.json(stdout);
             deleteFolderRecursive("./uploaded_files");
         });
     });
-}
+};
 
 function getRootDirectory(filePath) {
 
-    var dirname = path.dirname(filePath);
+    let dirname = path.dirname(filePath);
     if(!dirname || dirname === ".") {
         return filePath;
     }
@@ -188,7 +188,7 @@ function getRootDirectory(filePath) {
 }
 
 function ensureDirectoryExistence(filePath) {
-    var dirname = path.dirname(filePath);
+    let dirname = path.dirname(filePath);
     if (fs.existsSync(dirname)) {
         return true;
     }
@@ -196,17 +196,28 @@ function ensureDirectoryExistence(filePath) {
     fs.mkdirSync(dirname);
 }
 
-var deleteFolderRecursive = function(path) {
-    if(fs.existsSync(path)) {
-        fs.readdirSync(path).forEach(function(file,index){
-            var curPath = path + "/" + file;
-            if(fs.lstatSync(curPath).isDirectory()) {
-                deleteFolderRecursive(curPath);
+let deleteFolderRecursive = function(path, retry) {
+    if (retry === undefined)
+        retry = 3;
+
+    if (retry > 0)
+    {
+        try {
+            if(fs.existsSync(path)) {
+                fs.readdirSync(path).forEach(function(file,index){
+                    let curPath = path + "/" + file;
+                    if(fs.lstatSync(curPath).isDirectory()) {
+                        deleteFolderRecursive(curPath, retry);
+                    }
+                    else {
+                        fs.unlinkSync(curPath);
+                    }
+                });
+                fs.rmdirSync(path);
             }
-            else {
-                fs.unlinkSync(curPath);
-            }
-        });
-        fs.rmdirSync(path);
+        } catch (err) {
+            console.log(err);
+            setTimeout(() => deleteFolderRecursive(path, retry - 1), 500);
+        }
     }
 };
