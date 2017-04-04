@@ -525,7 +525,7 @@ angular.module("test").controller("viewProjectController", function($scope, $roo
             queries.schema = queries.schema.schema;
         }
 
-        if (project.jpaRelations) {
+        if (project.jpaRelations && project.showForeignKeyCandidates) {
             // Merge our JPA relations in
             var jpaRelations = JSON.parse(project.jpaRelations);
             jpaRelations.forEach(function (relation) {
